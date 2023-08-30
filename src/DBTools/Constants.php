@@ -15,7 +15,7 @@ class Constants
         'json' => 'array',
 //        'float' => 'float',
 //        'double' => 'float',
-//        'decimal' => 'float',
+        'decimal' => 'float',
 //        'date' => 'date',
         'datetime' => 'date',
 //        'timestamp' => 'timestamp',

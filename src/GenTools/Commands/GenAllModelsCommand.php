@@ -16,9 +16,9 @@ class GenAllModelsCommand extends Command
      */
     public function handle(): void
     {
-        foreach (DBToolsServices::GetDBModel()->tables as $table) {
-            $this->line($table->name . ':::');
-            Artisan::call("gf -d -f $table->name");
+        foreach (DBToolsServices::GetDBModel()->tableKeys as $name) {
+            $this->line($name . ':::');
+            Artisan::call("gf -d -f $name");
         }
     }
 }

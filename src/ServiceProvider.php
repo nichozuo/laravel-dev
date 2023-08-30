@@ -6,6 +6,7 @@ use Illuminate\Database\Schema\Blueprint;
 use LaravelDev\DBTools\Commands\DBBackupCommand;
 use LaravelDev\DBTools\Commands\DBCacheCommand;
 use LaravelDev\DBTools\Commands\DBDumpCommand;
+use LaravelDev\DBTools\Commands\DBModelCommand;
 use LaravelDev\GenTools\Commands\GenAllEnumsCommand;
 use LaravelDev\GenTools\Commands\GenAllModelsCommand;
 use LaravelDev\GenTools\Commands\GenFilesCommand;
@@ -28,6 +29,7 @@ class ServiceProvider extends \Illuminate\Support\ServiceProvider
             DBCacheCommand::class,
             DBBackupCommand::class,
             DBDumpCommand::class,
+            DBModelCommand::class,
             GenFilesCommand::class,
             GenAllEnumsCommand::class,
             GenAllModelsCommand::class,

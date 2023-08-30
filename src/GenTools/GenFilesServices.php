@@ -21,14 +21,14 @@ class GenFilesServices
     {
         $table = DBToolsServices::GetTable($tableName);
         // 生成BaseModel
-        $content = self::loadStub($table->hasSoftDeletes ? "BaseModelSoftDelete" : "BaseModel");
+        $content = self::loadStub($table->hasSoftDelete ? "BaseModelSoftDelete" : "BaseModel");
         $content = self::replaceAll([
-            'properties' => $table->modelPropertiesString,
+            'properties' => implode("\n", $table->modelProperties),
             'methods' => '',
             'modelName' => $table->modelName,
             'name' => $table->name,
             'comment' => $table->comment,
-            'fillable' => $table->fillableString,
+            'fillable' => "'" . implode("', '", $table->fillable) . "'",
             'relations' => $table->relationsString,
             'casts' => $table->castsString ?? ''
         ], $content);
@@ -53,12 +53,12 @@ class GenFilesServices
     {
         $table = DBToolsServices::GetTable($tableName);
 
-        $content = self::loadStub($table->hasSoftDeletes ? "ControllerSoftDelete" : "Controller");
+        $content = self::loadStub($table->hasSoftDelete ? "ControllerSoftDelete" : "Controller");
         $content = self::replaceAll([
             'moduleName' => implode('\\', $moduleName),
             'modelName' => $table->modelName,
             'comment' => $table->comment,
-            'validateString' => $table->validateString,
+            'validateString' => implode("\n\t\t\t", $table->validate),
         ], $content);
         $moduleName = implode('/', $moduleName);
         self::saveFile(app_path("Modules/$moduleName/{$table->modelName}Controller.php"), $content, $force);

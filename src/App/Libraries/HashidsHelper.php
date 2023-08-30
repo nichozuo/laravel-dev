@@ -3,27 +3,40 @@
 namespace LaravelDev\App\Libraries;
 
 
+use App\Models\Payments;
 use Vinkla\Hashids\Facades\Hashids;
 
 class HashidsHelper
 {
     /**
-     * @param mixed $enum
-     * @param int $id
+     * @param mixed $obj
      * @return string
      */
-    public static function Encode(mixed $enum, int $id): string
+    public static function Encode(mixed $obj): string
     {
-        return $enum->value . Hashids::connection($enum->name)->encode($id);
+        list($prefix, $connection) = self::getPrefix($obj);
+        return $prefix . Hashids::connection($connection)->encode($obj->id);
     }
 
     /**
-     * @param mixed $enum
+     * @param mixed $obj
      * @param string $code
      * @return int
      */
-    public static function Decode(mixed $enum, string $code): int
+    public static function Decode(mixed $obj, string $code): int
     {
-        return Hashids::connection($enum->name)->decode(substr($code, strlen($enum->value)))[0];
+        list($prefix, $connection) = self::getPrefix($obj);
+        return Hashids::connection($connection)->decode(substr($code, strlen($prefix)))[0];
+    }
+
+    /**
+     * @param mixed $obj
+     * @return string[]
+     */
+    private static function getPrefix(mixed $obj): array
+    {
+        return match (get_class($obj)) {
+            Payments::class => ['PM', 'Payments'],
+        };
     }
 }

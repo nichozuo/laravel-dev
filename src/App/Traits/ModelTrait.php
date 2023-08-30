@@ -3,12 +3,12 @@
 namespace LaravelDev\App\Traits;
 
 
+use Closure;
 use Exception;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use LaravelDev\App\Exceptions\ErrConst;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Arr;
-use LaravelDev\App\Exceptions\Err;
 
 /**
  * @method static ifWhereLike(array $params, string $key, ?string $field = null): Builder
@@ -25,6 +25,8 @@ use LaravelDev\App\Exceptions\Err;
  * @method static selectRaw(string $raw)
  * @method static whereIn(string $field, array $array)
  * @method static defaultOrder()
+ * @method static updateOrCreate(string[] $array, array[] $array1)
+ * @method static each(Closure $param)
  * @method children()
  * @method fixTree()
  * @method up()
