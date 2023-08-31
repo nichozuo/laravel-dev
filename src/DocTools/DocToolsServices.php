@@ -117,7 +117,7 @@ class DocToolsServices
                             "content" => [
                                 'application/x-www-form-urlencoded' => new MediaType([
                                     "schema" => new Schema([
-                                        "dbType" => "object",
+                                        "type" => "object",
                                         "properties" => $properties,
                                         "required" => $required,
                                     ])
