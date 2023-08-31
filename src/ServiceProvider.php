@@ -3,15 +3,16 @@
 namespace LaravelDev;
 
 use Illuminate\Database\Schema\Blueprint;
-use LaravelDev\DBTools\Commands\DBBackupCommand;
-use LaravelDev\DBTools\Commands\DBCacheCommand;
-use LaravelDev\DBTools\Commands\DBDumpCommand;
-use LaravelDev\DBTools\Commands\DBModelCommand;
-use LaravelDev\GenTools\Commands\GenAllEnumsCommand;
-use LaravelDev\GenTools\Commands\GenAllModelsCommand;
-use LaravelDev\GenTools\Commands\GenFilesCommand;
-use LaravelDev\GenTools\Commands\RenameMigrationFilesCommand;
-use LaravelDev\GenTools\Commands\UpdateModelsCommand;
+use LaravelDev\Commands\DBBackupCommand;
+use LaravelDev\Commands\DBCacheCommand;
+use LaravelDev\Commands\DBDumpModelCommand;
+use LaravelDev\Commands\DBDumpTableCommand;
+use LaravelDev\Commands\GenAllEnumsCommand;
+use LaravelDev\Commands\GenAllModelsCommand;
+use LaravelDev\Commands\GenFilesCommand;
+use LaravelDev\Commands\RenameMigrationFilesCommand;
+use LaravelDev\Commands\RouterDumpCommand;
+use LaravelDev\Commands\UpdateModelsCommand;
 
 
 /**
@@ -28,8 +29,11 @@ class ServiceProvider extends \Illuminate\Support\ServiceProvider
         $this->commands([
             DBCacheCommand::class,
             DBBackupCommand::class,
-            DBDumpCommand::class,
-            DBModelCommand::class,
+            DBDumpTableCommand::class,
+            DBDumpModelCommand::class,
+
+            RouterDumpCommand::class,
+
             GenFilesCommand::class,
             GenAllEnumsCommand::class,
             GenAllModelsCommand::class,
@@ -43,10 +47,6 @@ class ServiceProvider extends \Illuminate\Support\ServiceProvider
             $allowed = $enumClass::columns();
             return $this->addColumn('enum', $column, compact('length', 'allowed'))->comment($enumClass::comment($comment));
         });
-
-        Blueprint::macro('xPercent', function (string $column, $total = 5, $places = 2, $unsigned = false) {
-            return $this->addColumn('float', $column, compact('total', 'places', 'unsigned'));
-        });
     }
 
     /**
@@ -55,10 +55,9 @@ class ServiceProvider extends \Illuminate\Support\ServiceProvider
     public function boot(): void
     {
         $this->publishes([
-            __DIR__ . '/App/common.php' => config_path("common.php"),
-            __DIR__ . '/DocTools/docs' => public_path("docs"),
+            __DIR__ . '/config.php' => config_path("project.php"),
         ]);
 
-        $this->loadRoutesFrom(__DIR__ . '/DocTools/api.php');
+        $this->loadRoutesFrom(__DIR__ . '/api.php');
     }
 }
