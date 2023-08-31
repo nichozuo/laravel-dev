@@ -2,29 +2,24 @@
 
 namespace LaravelDev\Services;
 
-use cebe\openapi\exceptions\TypeErrorException;
-use cebe\openapi\spec\MediaType;
-use cebe\openapi\spec\OpenApi;
-use cebe\openapi\spec\Operation;
-use cebe\openapi\spec\PathItem;
-use cebe\openapi\spec\Paths;
-use cebe\openapi\spec\RequestBody;
-use cebe\openapi\spec\Response;
-use cebe\openapi\spec\Responses;
-use cebe\openapi\spec\Schema;
-use cebe\openapi\Writer;
-use Doctrine\DBAL\Exception;
-use JetBrains\PhpStorm\ArrayShape;
+use LaravelDev\Models\DBModel\DBModel;
+use LaravelDev\Models\DBModel\DBTableModel;
+use LaravelDev\Models\EnumModel\EnumModel;
+use LaravelDev\Models\RouteModel\ControllerModel;
 use ReflectionException;
 
 class DocToolsServices
 {
     /**
      * @return array
-     * @throws TypeErrorException
+     * @throws ReflectionException
      */
     public static function GenOpenApiV3Doc(): array
     {
+        $controllers = RouterModelServices::GenRoutersModels();
+        $db = DBModelServices::GetDBModel();
+        $enums = EnumModelServices::GetEnums();
+
         return [
             'openapi' => '3.0.1',
             'info' => [
@@ -37,180 +32,145 @@ class DocToolsServices
                     "url" => config('app.url') . "/api/"
                 ]
             ],
-            'tags' => self::getTags(),
-            'paths' => self::getPaths(),
-            'components' => self::getComponents(),
-//            'extends' => [
-//                'tree' => [
-//                    'api' => RouterToolsServices::GenDocTree(),
-//                    'db' => DBToolsServices::GenDocTree(),
-//                    'enum' => EnumToolsServices::GenDocTree(),
-//                ],
-//                'data' => [
-//                    'api' => RouterToolsServices::GenDocList(),
-//                    'db' => DBToolsServices::GenDocList(),
-//                    'enum' => EnumToolsServices::GenDocList(),
-//                ],
-//            ]
+            'tags' => self::getTags($controllers),
+            'paths' => self::getPaths($controllers),
+            'components' => self::getComponents($db, $enums),
         ];
     }
 
     /**
-     * @return array
-     * @throws ReflectionException
-     * @throws TypeErrorException
+     * @param DBModel $db
+     * @param EnumModel[] $enums
+     * @return array[]
      */
-    private static function getPathsAndTags(): array
-    {
-        $controllers = RouterModelServices::GenRoutersModels();
-        $pathItems = [];
-        $tags = [];
-        $tagNames = [];
-        foreach ($controllers as $controller) {
-            foreach ($controller->actions as $action) {
-                $name = implode('/', $controller->modules);
-
-                // 处理tag
-                if (!in_array($name, $tagNames)) {
-                    $tags[] = [
-                        "name" => $name,
-                        "description" => $controller->intro
-                    ];
-                    $tagNames[] = $name;
-                }
-
-                // 处理properties 和 required
-                $properties = [];
-                $required = [];
-
-                foreach ($action->params as $param) {
-                    $properties[$param->key] = new Schema([
-                        'type' => $param->type,
-                        'description' => $param->description,
-                        "required" => $param->required,
-                    ]);
-                    if ($param->required) {
-                        $required[] = $param->key;
-                    }
-                }
-                // 处理pathItem
-                $pathItems["/$controller->routerPrefix/$action->uri"] = new PathItem([
-                    strtolower($action->method[0]) => new Operation([
-                        "tags" => [$name],
-                        "x-apifox-folder" => $name,
-                        "x-module-name" => str_replace("Controller", "", $controller->controllerName),
-                        "x-action-name" => $action->methodName,
-                        "summary" => $action->intro,
-                        "description" => '',
-                        "requestBody" => count($action->params) == 0 ? null : new RequestBody([
-                            "content" => [
-                                'application/x-www-form-urlencoded' => new MediaType([
-                                    "schema" => new Schema([
-                                        "type" => "object",
-                                        "properties" => $properties,
-                                        "required" => $required,
-                                    ])
-                                ])
-                            ]
-                        ])
-                    ])
-                ]);
-            }
-        }
-
-        $paths = new Paths($pathItems);
-        return [$tags, $paths];
-    }
-
-    /**
-     * @return array
-     * @throws Exception
-     * @throws TypeErrorException
-     */
-    private static function getSchemas(): array
+    private static function getComponents(DBModel $db, array $enums): array
     {
         $schemas = [];
-
-        // database
-        $db = DBModelServices::GenDBModel();
         foreach ($db->tables as $table) {
-            $properties = [];
-            $required = [];
-            foreach ($table->columns as $column) {
-                $properties[$column->name] = new Schema([
-                    "type" => $column->dbType,
-                    "description" => $column->comment,
-                    "required" => $column->notNull,
-                ]);
-                if ($column->notNull) {
-                    $required[] = $column->name;
-                }
-            }
-            $schemas[$table->name] = new Schema([
+            $schemas[$table->name] = [
                 "type" => "object",
-                "description" => $table->comment,
-                "properties" => $properties,
-                "required" => $required
-            ]);
+                "title" => $table->comment,
+                "x-type" => "database",
+                "properties" => self::getTableProperties($table)
+            ];
         }
-
-        // enums
-
+        foreach ($enums as $enum) {
+            $schemas[$enum->name] = [
+                "type" => "object",
+                "title" => $enum->intro,
+                "x-type" => "enum",
+                "properties" => self::getEnumProperties($enum)
+            ];
+        }
         return $schemas;
     }
 
     /**
+     * @param ControllerModel[] $controllers
      * @return array
-     * @throws TypeErrorException
      */
-    #[ArrayShape(["responses" => "\cebe\openapi\spec\Responses", "schemas" => ""])]
-    private static function getComponents(): array
+    private static function getTags(array $controllers): array
     {
-        return [
-            "responses" => new Responses([
-                'default' => new Response([
-                    "description" => "default response",
-                    "content" => [
-                        "application/json" => new MediaType([
-                            "schema" => new Schema([
-                                "type" => "object",
-                                "properties" => [
-                                    "code" => new Schema([
-                                        "type" => "integer",
-                                        "description" => "code",
-                                        "example" => 0,
-                                    ]),
-                                    "message" => new Schema([
-                                        "type" => "string",
-                                        "description" => "message",
-                                        "example" => "ok",
-                                    ]),
-                                    "data" => new Schema([
+        $tags = [];
+        foreach ($controllers as $key => $value) {
+            $tags[] = [
+                "name" => implode('/', $value->modules),
+                "description" => $value->intro
+            ];
+        }
+        return $tags;
+    }
+
+    /**
+     * @param ControllerModel[] $controllers
+     * @return array
+     */
+    private static function getPaths(array $controllers): array
+    {
+        $paths = [];
+        foreach ($controllers as $key => $controller) {
+            $folder = implode("/", $controller->modules);
+            foreach ($controller->actions as $action) {
+                list($properties, $required) = self::getDBPropertiesAndRequired($action->params);
+                $paths["/$controller->routerPrefix/$action->uri"] = [
+                    strtolower($action->method[0]) => [
+                        "tags" => [$folder],
+//                        "x-apifox-folder" => $folder,
+//                        "x-module-name" => str_replace("Controller", "", $controller->controllerName),
+//                        "x-action-name" => $action->methodName,
+                        "summary" => $action->uri,
+                        "description" => $action->intro,
+                        "requestBody" => count($action->params) == 0 ? null : [
+                            "content" => [
+                                'application/x-www-form-urlencoded' => [
+                                    "schema" => [
                                         "type" => "object",
-                                        "description" => "data"
-                                    ])
+                                        "properties" => $properties,
+                                        "required" => $required,
+                                    ]
                                 ]
-                            ])
-                        ])
+                            ]
+                        ]
                     ]
-                ])
-            ]),
-        ];
+                ];
+            }
+
+        }
+        return $paths;
     }
 
     /**
+     * @param array $params
      * @return array
      */
-    private static function getTags(): array
+    private static function getDBPropertiesAndRequired(array $params): array
     {
-        return [];
+        $properties = [];
+        $required = [];
+        foreach ($params as $param) {
+            $properties[$param->key] = [
+                'type' => $param->type,
+                'description' => $param->description,
+                "required" => $param->required,
+            ];
+            if ($param->required) {
+                $required[] = $param->key;
+            }
+        }
+        return [$properties, $required];
     }
 
     /**
+     * @param DBTableModel $table
      * @return array
      */
-    private static function getPaths(): array
+    private static function getTableProperties(DBTableModel $table): array
     {
-        return [];
+        $properties = [];
+        foreach ($table->columns as $name => $column) {
+            $properties[$name] = [
+                'type' => $column->dbType,
+                'description' => $column->comment,
+                "required" => $column->nullableString,
+            ];
+        }
+        return $properties;
+    }
+
+    /**
+     * @param EnumModel $enum
+     * @return array
+     */
+    private static function getEnumProperties(EnumModel $enum): array
+    {
+        $properties = [];
+        foreach ($enum->consts as $key => $value) {
+            $properties[$key] = [
+                'label' => $value->label,
+                'value' => $value->value,
+                "color" => $value->color,
+            ];
+        }
+        return $properties;
     }
 }
