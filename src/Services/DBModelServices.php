@@ -1,6 +1,6 @@
 <?php
 
-namespace LaravelDev\ModelServices;
+namespace LaravelDev\Services;
 
 use Doctrine\DBAL\Exception;
 use Doctrine\DBAL\Schema\Column;
