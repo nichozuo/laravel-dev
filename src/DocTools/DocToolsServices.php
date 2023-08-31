@@ -19,7 +19,6 @@ use cebe\openapi\Writer;
 use Doctrine\DBAL\Exception;
 use JetBrains\PhpStorm\ArrayShape;
 use LaravelDev\DBTools\DBToolsServices;
-use LaravelDev\DBTools\EnumToolsServices;
 use LaravelDev\RouterTools\RouterToolsServices;
 use ReflectionException;
 
@@ -97,7 +96,7 @@ class DocToolsServices
 
                 foreach ($action->params as $param) {
                     $properties[$param->key] = new Schema([
-                        'dbType' => $param->type,
+                        'type' => $param->type,
                         'description' => $param->description,
                         "required" => $param->required,
                     ]);
@@ -149,7 +148,7 @@ class DocToolsServices
             $required = [];
             foreach ($table->columns as $column) {
                 $properties[$column->name] = new Schema([
-                    "dbType" => $column->dbType,
+                    "type" => $column->dbType,
                     "description" => $column->comment,
                     "required" => $column->notNull,
                 ]);
@@ -158,7 +157,7 @@ class DocToolsServices
                 }
             }
             $schemas[$table->name] = new Schema([
-                "dbType" => "object",
+                "type" => "object",
                 "description" => $table->comment,
                 "properties" => $properties,
                 "required" => $required
@@ -184,20 +183,20 @@ class DocToolsServices
                     "content" => [
                         "application/json" => new MediaType([
                             "schema" => new Schema([
-                                "dbType" => "object",
+                                "type" => "object",
                                 "properties" => [
                                     "code" => new Schema([
-                                        "dbType" => "integer",
+                                        "type" => "integer",
                                         "description" => "code",
                                         "example" => 0,
                                     ]),
                                     "message" => new Schema([
-                                        "dbType" => "string",
+                                        "type" => "string",
                                         "description" => "message",
                                         "example" => "ok",
                                     ]),
                                     "data" => new Schema([
-                                        "dbType" => "object",
+                                        "type" => "object",
                                         "description" => "data"
                                     ])
                                 ]
