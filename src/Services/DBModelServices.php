@@ -25,7 +25,7 @@ class DBModelServices
         'json' => 'array',
 //        'float' => 'float',
 //        'double' => 'float',
-        'decimal' => 'float',
+        'decimal' => 'numeric',
 //        'date' => 'date',
         'datetime' => 'date',
 //        'timestamp' => 'timestamp',
