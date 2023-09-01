@@ -287,4 +287,19 @@ class DBModelServices
 
         return $str;
     }
+
+    /**
+     * @param DBTableModel $tableModel
+     * @return string
+     */
+    public static function ParseCasts(DBTableModel $tableModel): string
+    {
+        if (count($tableModel->casts) == 0)
+            return '';
+
+        $castsString = "protected \$casts = [\n\t\t";
+        $castsString .= implode("\n\t\t", $tableModel->casts);
+        $castsString .= "\n\t];\n";
+        return $castsString;
+    }
 }

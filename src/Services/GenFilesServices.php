@@ -29,7 +29,7 @@ class GenFilesServices
             'comment' => $table->comment,
             'fillable' => "'" . implode("', '", $table->fillable) . "'",
             'relations' => $table->relationsString,
-            'casts' => $table->castsString ?? ''
+            'casts' => DBModelServices::ParseCasts($table)
         ], $content);
         self::saveFile(app_path("Models/Base/Base$table->modelName.php"), $content, $force);
 

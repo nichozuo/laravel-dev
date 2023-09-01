@@ -9,8 +9,11 @@ use Illuminate\Contracts\Pagination\LengthAwarePaginator;
 use LaravelDev\App\Exceptions\ErrConst;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Arr;
+use Carbon\Carbon;
 
 /**
+ * @method static ifWhereDateRange(array $params, string $key, ?string $field = null): Builder
+ * @method static ifHasWhereLike(array $params, string $key, string $relationName, string $field): Builder
  * @method static ifWhereLike(array $params, string $key, ?string $field = null): Builder
  * @method static ifWhere(array $params, string $key, ?string $field = null): Builder
  * @method static order(string $key = 'orderBy'): Builder
@@ -34,6 +37,44 @@ use Illuminate\Support\Arr;
  */
 trait ModelTrait
 {
+    public function scopeIfWhereDateRange(Builder $builder, array $params, string $key, ?string $field = null): Builder
+    {
+        if (!isset($params[$key]))
+            return $builder;
+
+        $dataRange = $params[$key];
+        if (count($dataRange) != 2)
+            ee("{$key}参数必须是两个值");
+
+        $start = $dataRange[0] == '' || $dataRange[0] == null ? null : Carbon::parse($dataRange[0]);
+        $end = $dataRange[1] == '' || $dataRange[1] == null ? null : Carbon::parse($dataRange[1]);
+
+        if ($start && !$end)
+            return $builder->where($field ?? $key, '>=', $start->startOfDay()->toDateTimeString());
+        if (!$start && $end)
+            return $builder->where($field ?? $key, '<=', $end->endOfDay()->toDateTimeString());
+        else
+            return $builder->whereBetween($field ?? $key, [$start->toDateString(), $end->toDateString()]);
+    }
+
+    /**
+     * @param Builder $builder
+     * @param array $params
+     * @param string $key
+     * @param string $relationName
+     * @param string $field
+     * @return Builder
+     */
+    public function scopeIfHasWhereLike(Builder $builder, array $params, string $key, string $relationName, string $field): Builder
+    {
+        if (!isset($params[$key]))
+            return $builder;
+
+        return $builder->whereHas($relationName, function ($q) use ($params, $key, $field) {
+            $q->where($field, 'like', "%$params[$key]%");
+        });
+    }
+
     /**
      * @param Builder $builder
      * @param array $params 请求参数
@@ -109,8 +150,8 @@ trait ModelTrait
     public function scopePage(Builder $builder): LengthAwarePaginator
     {
         $perPage = request()->validate([
-                'perPage' => 'nullable|integer',
-            ])['perPage'] ?? 10;
+            'perPage' => 'nullable|integer',
+        ])['perPage'] ?? 10;
 
         $allow = config('common.perPageAllow', [10, 20, 50, 100]);
         if (!in_array($perPage, $allow))

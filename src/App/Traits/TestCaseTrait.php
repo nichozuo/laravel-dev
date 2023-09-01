@@ -8,7 +8,7 @@ use Illuminate\Support\Str;
 
 trait TestCaseTrait
 {
-    protected string $token = '';
+    protected array $token = [];
     protected string $url = '';
     protected int $id;
     protected array $headers = [];
@@ -27,8 +27,8 @@ trait TestCaseTrait
      */
     protected function go(string $method, array $params = [], array $headers = []): void
     {
-        $url = $this->getUrl($method);
-        $headers['Authorization'] = 'Bearer ' . $this->token;
+        list($module, $url) = $this->getUrl($method);
+        $headers['Authorization'] = 'Bearer ' . $this->token[$module] ?? '';
         $url = $this->url ? $this->url . $url : $url;
         $response = $this->withHeaders($this->headers)->post($url, $params, $headers);
         $json = $response->json();
@@ -39,9 +39,9 @@ trait TestCaseTrait
 
     /**
      * @param string $method
-     * @return string
+     * @return array
      */
-    private function getUrl(string $method): string
+    private function getUrl(string $method): array
     {
         $t1 = explode('\\', $method);
         $urls[] = 'api';
@@ -61,6 +61,6 @@ trait TestCaseTrait
                 )
             )
         );
-        return '/' . implode('/', $urls);
+        return [$t1[2], '/' . implode('/', $urls)];
     }
 }
