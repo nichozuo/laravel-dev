@@ -74,7 +74,7 @@ class EnumModelServices
                 ];
             }
             $str .= '// ' . $enum->intro . PHP_EOL;
-            $str .= "export const $enum->name =" . json_encode($consts, JSON_UNESCAPED_UNICODE) . PHP_EOL;
+            $str .= "export const $enum->name : MyEnumItemProps[] =" . json_encode($consts, JSON_UNESCAPED_UNICODE) . PHP_EOL;
         }
         return $str;
     }
