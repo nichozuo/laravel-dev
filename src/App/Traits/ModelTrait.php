@@ -21,6 +21,7 @@ use Carbon\Carbon;
  * @method static self|null getById(int $id, bool $throw = true, bool $lock = false)
  * @method static self|null idp(array $params, bool $throw = true, bool $lock = false)
  * @method static unique(array $params, array $keys, string $label = null, string $field = 'id'): Builder
+ * @method static lockForUpdate()
  *
  * @method static create(array $params)
  * @method static where(string $field, string $value)
