@@ -23,7 +23,7 @@ class DBModelServices
         'bigint' => 'integer',
         'string' => 'string',
         'json' => 'array',
-//        'float' => 'float',
+        'float' => 'numeric',
 //        'double' => 'float',
         'decimal' => 'numeric',
 //        'date' => 'date',

@@ -71,12 +71,49 @@ class EnumModelServices
                     'label' => $const->label,
                     'value' => $const->value,
                     'color' => $const->color,
+                    'textColor' => self::getTextColor($const->color),
                 ];
             }
             $str .= '// ' . $enum->intro . PHP_EOL;
             $str .= "export const $enum->name : MyEnumItemProps[] =" . json_encode($consts, JSON_UNESCAPED_UNICODE) . PHP_EOL;
         }
         return $str;
+    }
+
+    /**
+     * @param $colorInput
+     * @return string
+     */
+    private static function getTextColor($colorInput): string
+    {
+        $colorNamesToHex = [
+            "red" => "FF0000",
+            'green' => '00FF00',
+            'blue' => '0000FF',
+            'yellow' => 'FFFF00'
+        ];
+
+        // 如果输入的是颜色名称，将其转换为十六进制颜色代码
+        if (array_key_exists($colorInput, $colorNamesToHex)) {
+            $colorInput = $colorNamesToHex[$colorInput];
+        }
+
+        // 如果输入的颜色代码带有#，去掉#
+        $hexColor = str_replace("#", "", $colorInput);
+
+        $r = hexdec(substr($hexColor, 0, 2));
+        $g = hexdec(substr($hexColor, 2, 2));
+        $b = hexdec(substr($hexColor, 4, 2));
+
+        $luminance = ($r * 0.299 + $g * 0.587 + $b * 0.114) / 255;
+
+        if ($luminance > 0.5) {
+            // 浅色背景，使用深色文字
+            return '000000'; // 黑色
+        } else {
+            // 深色背景，使用浅色文字
+            return 'FFFFFF'; // 白色
+        }
     }
 
     /**
