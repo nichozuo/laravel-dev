@@ -3,19 +3,22 @@
 namespace App\Models\Base;
 
 use Illuminate\Database\Eloquent\Factories\HasFactory;
-use Illuminate\Database\Eloquent\Relations;
-use App\Models;
+{$useClasses}
 
 /**
-{$properties}
-{$methods}*/
+ {$properties}
+ */
 class Base{$modelName} extends Base
 {
     use HasFactory;
+    {$useTraits}
 
     protected $table = '{$name}';
     protected string $comment = '{$comment}';
     protected $fillable = [{$fillable}];
+    {$hidden}
+    {$guard_name}
+
     {$casts}
     {$relations}
 }

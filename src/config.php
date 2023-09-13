@@ -9,5 +9,8 @@ return [
         'sys_model_has_roles',
         'personal_access_tokens',
     ],
+    'hasApiTokens' => ['admins'],
+    'hasRoles' => ['sys_permissions', 'sys_roles', 'admins'],
+    'hasNodeTrait' => ['sys_permissions'],
     'showDoc' => env('SHOW_DOC', true),
 ];

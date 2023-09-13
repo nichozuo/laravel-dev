@@ -4,7 +4,6 @@ namespace LaravelDev\Services;
 
 use Exception;
 use Illuminate\Support\Facades\File;
-use JetBrains\PhpStorm\NoReturn;
 
 class GenFilesServices
 {
@@ -15,19 +14,52 @@ class GenFilesServices
      * @return void
      * @throws Exception
      */
-    #[NoReturn]
     public static function GenModels(string $tableName, bool $force): void
     {
         $table = DBModelServices::GetTable($tableName);
         // 生成BaseModel
-        $content = self::loadStub($table->hasSoftDelete ? "BaseModelSoftDelete" : "BaseModel");
+        $useClasses = [];
+        $useTraits = [];
+        $hidden = '';
+        $guardName = '';
+
+        if ($table->hasNodeTrait) {
+            $useClasses[] = 'use Kalnoy\Nestedset\NodeTrait;';
+            $useTraits[] = 'use NodeTrait;';
+        }
+        if ($table->hasApiTokens) {
+            $useClasses[] = 'use Laravel\Sanctum\HasApiTokens;';
+            $useTraits[] = 'use HasApiTokens;';
+            $guardName = "protected string \$guard_name = 'sanctum';";
+        }
+        if ($table->hasRoles) {
+            $useClasses[] = 'use Spatie\Permission\Traits\HasRoles;';
+            $useTraits[] = 'use HasRoles;';
+        }
+        if ($table->hasRelation) {
+            $useClasses[] = 'use Illuminate\Database\Eloquent\Relations;';
+            $useClasses[] = 'use App\Models;';
+        }
+        if (count($table->hidden)) {
+            $hidden = "protected \$hidden = ['" . implode("', '", $table->hidden) . "'];";
+        }
+        if ($table->hasSoftDelete) {
+            $useClasses[] = 'use Illuminate\Database\Eloquent\SoftDeletes;';
+            $useTraits[] = 'use SoftDeletes;';
+        }
+
+        $content = self::loadStub("BaseModel");
         $content = self::replaceAll([
-            'properties' => implode("\n", $table->modelProperties),
-            'methods' => '',
+            'useClasses' => implode("\n", $useClasses),
+            'properties' => implode("\n ", $table->modelProperties),
+//            'methods' => '',
             'modelName' => $table->modelName,
+            'useTraits' => implode("\n\t", $useTraits),
             'name' => $table->name,
             'comment' => $table->comment,
             'fillable' => "'" . implode("', '", $table->fillable) . "'",
+            'hidden' => $hidden,
+            'guard_name' => $guardName,
             'relations' => $table->relationsString,
             'casts' => DBModelServices::ParseCasts($table)
         ], $content);

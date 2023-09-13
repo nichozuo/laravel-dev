@@ -26,4 +26,8 @@ class DBTableModel
     public array $validate = []; // 验证字符串
     public array $insert = []; // 插入符串
     public ?array $casts = []; // casts字符串
+    public bool $hasApiTokens = false; // 是否有api token
+    public bool $hasRoles = false; // 是否有角色
+    public bool $hasNodeTrait = false; // 是否有节点
+    public ?array $hidden = []; // 规则
 }

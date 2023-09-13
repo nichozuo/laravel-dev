@@ -6,6 +6,7 @@ namespace LaravelDev\App\Traits;
 use Closure;
 use Exception;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
+use LaravelDev\App\Exceptions\Err;
 use LaravelDev\App\Exceptions\ErrConst;
 use Illuminate\Database\Eloquent\Builder;
 use Illuminate\Support\Arr;
@@ -22,6 +23,7 @@ use Carbon\Carbon;
  * @method static self|null idp(array $params, bool $throw = true, bool $lock = false)
  * @method static unique(array $params, array $keys, string $label = null, string $field = 'id'): Builder
  * @method static lockForUpdate()
+ * @method static forSelect(?string $key1 = 'id', ?string $key2 = 'name'): Builder
  *
  * @method static create(array $params)
  * @method static where(string $field, string $value)
@@ -38,6 +40,25 @@ use Carbon\Carbon;
  */
 trait ModelTrait
 {
+    /**
+     * @param Builder $builder
+     * @param string|null $key1
+     * @param string|null $key2
+     * @return Builder
+     */
+    public function scopeForSelect(Builder $builder, ?string $key1 = 'id', ?string $key2 = 'name'): Builder
+    {
+        return $builder->selectRaw("{$key1} as value, {$key2} as label");
+    }
+
+    /**
+     * @param Builder $builder
+     * @param array $params
+     * @param string $key
+     * @param string|null $field
+     * @return Builder
+     * @throws Err
+     */
     public function scopeIfWhereDateRange(Builder $builder, array $params, string $key, ?string $field = null): Builder
     {
         if (!isset($params[$key]))
@@ -154,7 +175,7 @@ trait ModelTrait
             'perPage' => 'nullable|integer',
         ])['perPage'] ?? 10;
 
-        $allow = config('common.perPageAllow', [10, 20, 50, 100]);
+        $allow = config('project.perPageAllow', [10, 20, 50, 100]);
         if (!in_array($perPage, $allow))
             ee(...ErrConst::PerPageIsNotAllow);
 

@@ -103,6 +103,9 @@ class DBModelServices
         // process db model
         $tables = $sm->listTables();
         $dbModel = new DBModel();
+        $hasApiTokens = config('project.hasApiTokens');
+        $hasRoles = config('project.hasRoles');
+        $hasNodeTrait = config('project.hasNodeTrait');
 
         // process table keys
         foreach ($tables as $table) {
@@ -116,6 +119,13 @@ class DBModelServices
             $tableModel->name = $table->getName();
             $tableModel->comment = $table->getComment();
             $tableModel->modelName = str()->of($tableModel->name)->studly();
+
+            if (in_array($tableModel->name, $hasApiTokens))
+                $tableModel->hasApiTokens = true;
+            if (in_array($tableModel->name, $hasRoles))
+                $tableModel->hasRoles = true;
+            if (in_array($tableModel->name, $hasNodeTrait))
+                $tableModel->hasNodeTrait = true;
 
             foreach ($table->getColumns() as $column) {
                 // parse column model
@@ -162,6 +172,14 @@ class DBModelServices
                 if ($columnModel->isForeignKey) {
                     $tableModel->foreignKey[$columnModel->name] = $columnModel->foreignTable;
                 }
+
+                if (in_array($tableModel->name, ['_lft', '_rgt']))
+                    $tableModel->hasNodeTrait = true;
+
+                if (str_contains($columnModel->comment, '[hidden]')) {
+                    $columnModel->isHidden = true;
+                    $tableModel->hidden[] = $columnModel->name;
+                }
             }
 
             $dbModel->tables[$tableModel->name] = $tableModel;
@@ -171,7 +189,7 @@ class DBModelServices
         foreach ($dbModel->tables as $tableModel) {
             // hasMany
             $tableModel->hasMany = self::parseHasMany($dbModel, $tableModel);
-            // belongsTO
+            // belongsTo
             $tableModel->belongsTo = self::parseBelongsTo($tableModel);
             // belongsToMany
             $tableModel->relationsString = self::parseRelationsStr($tableModel);

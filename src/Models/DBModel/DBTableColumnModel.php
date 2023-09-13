@@ -17,4 +17,5 @@ class DBTableColumnModel
     public bool $isForeignKey = false;
     public ?string $foreignTable;
     public string $nullableString;
+    public bool $isHidden = false;
 }
