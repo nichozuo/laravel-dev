@@ -6,6 +6,7 @@ namespace LaravelDev\App\Traits;
 use Closure;
 use Exception;
 use Illuminate\Contracts\Pagination\LengthAwarePaginator;
+use Illuminate\Database\Eloquent\Collection;
 use LaravelDev\App\Exceptions\Err;
 use LaravelDev\App\Exceptions\ErrConst;
 use Illuminate\Database\Eloquent\Builder;
@@ -44,11 +45,11 @@ trait ModelTrait
      * @param Builder $builder
      * @param string|null $key1
      * @param string|null $key2
-     * @return Builder
+     * @return Builder[]|Collection
      */
-    public function scopeForSelect(Builder $builder, ?string $key1 = 'id', ?string $key2 = 'name'): Builder
+    public function scopeForSelect(Builder $builder, ?string $key1 = 'id', ?string $key2 = 'name'): Collection|array
     {
-        return $builder->selectRaw("{$key1} as value, {$key2} as label");
+        return $builder->selectRaw("{$key1} as value, {$key2} as label")->get();
     }
 
     /**
