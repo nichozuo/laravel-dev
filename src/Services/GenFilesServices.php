@@ -55,7 +55,7 @@ class GenFilesServices
 //            'methods' => '',
             'modelName' => $table->modelName,
             'useTraits' => implode("\n\t", $useTraits),
-            'name' => $table->name,
+            'name' => config('project.tablePrefix') . $table->name,
             'comment' => $table->comment,
             'fillable' => "'" . implode("', '", $table->fillable) . "'",
             'hidden' => $hidden,
