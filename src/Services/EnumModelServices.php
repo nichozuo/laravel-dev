@@ -110,10 +110,10 @@ class EnumModelServices
 
         if ($luminance > 0.5) {
             // 浅色背景，使用深色文字
-            return '000000'; // 黑色
+            return '#000000'; // 黑色
         } else {
             // 深色背景，使用浅色文字
-            return 'FFFFFF'; // 白色
+            return '#FFFFFF'; // 白色
         }
     }
 

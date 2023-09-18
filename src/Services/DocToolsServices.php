@@ -169,6 +169,7 @@ class DocToolsServices
                 'label' => $value->label,
                 'value' => $value->value,
                 "color" => $value->color,
+                "textColor" => $value->textColor,
             ];
         }
         return $properties;
