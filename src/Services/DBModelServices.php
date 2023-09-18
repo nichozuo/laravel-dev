@@ -29,7 +29,7 @@ class DBModelServices
 //        'date' => 'date',
         'datetime' => 'date',
 //        'timestamp' => 'timestamp',
-//        'time' => 'time',
+        'time' => 'time',
 //        'year' => 'year',
 //        'char' => 'string',
 //        'varchar' => 'string',
@@ -218,22 +218,26 @@ class DBModelServices
      */
     private static function parseColumnForeignInfo(DBModel $db, Column $column): array
     {
+        if ($column->getType()->getName() != 'bigint')
+            return [false, null];
+        if (!str()->of($column->getName())->endsWith('s_id'))
+            return [false, null];
+
         $comment = $column->getComment();
         $name = $column->getName();
+
         // foreign key 备注中有：ref[表名]
-        if (str()->of($comment)->contains("ref[")) {
-            $foreignTableName = str()->of($comment)->between("ref[", "]");
-            if (in_array($foreignTableName, $db->tableKeys)) {
-                return [true, $foreignTableName];
-            }
+        if (str()->of($comment)->contains("[ref:")) {
+            $foreignTableName = str()->of($comment)->between("[ref:", "]");
+            return [true, $foreignTableName];
         }
+
         // foreign key 列名称：表名+_id
-        if (str()->of($name)->contains('s_id') && $column->getType()->getName() == 'bigint') {
-            $foreignTableName = str()->of($name)->before('_id');
-            if (in_array($foreignTableName, $db->tableKeys)) {
-                return [true, $foreignTableName];
-            }
+        $foreignTableName = str()->of($name)->before('_id');
+        if (in_array($foreignTableName, $db->tableKeys)) {
+            return [true, $foreignTableName];
         }
+
         return [false, null];
     }
 
@@ -270,7 +274,7 @@ class DBModelServices
     {
         $belongsTo = [];
         foreach ($tableModel->foreignKey as $foreignKey => $foreignTableName) {
-            $belongsTo[Str::of($foreignTableName)->singular()->toString()] = [
+            $belongsTo[str()->of(str_replace('_id', '', $foreignKey))->singular()->toString()] = [
                 'related' => Str::of($foreignTableName)->studly()->toString(),
                 'foreignKey' => $foreignKey,
                 'ownerKey' => 'id'

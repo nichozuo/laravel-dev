@@ -12,5 +12,6 @@ return [
     'hasApiTokens' => ['admins'],
     'hasRoles' => ['sys_permissions', 'sys_roles', 'admins'],
     'hasNodeTrait' => ['sys_permissions'],
+    'tablePrefix' => '',
     'showDoc' => env('SHOW_DOC', true),
 ];
