@@ -31,6 +31,7 @@ class EnumModelServices
                 $const->label = $constDoc['value'] ?? $constRef->name;
                 $const->value = $constDoc['value'] ?? $constRef->value;
                 $const->color = $constDoc['color'] ?? self::getRandomColor();
+                $const->textColor = $constDoc['textColor'] ?? self::getTextColor($const->color);
                 $consts[] = $const;
             }
 
@@ -71,7 +72,7 @@ class EnumModelServices
                     'label' => $const->label,
                     'value' => $const->value,
                     'color' => $const->color,
-                    'textColor' => self::getTextColor($const->color),
+                    'textColor' => $const->textColor,
                 ];
             }
             $str .= '// ' . $enum->intro . PHP_EOL;
