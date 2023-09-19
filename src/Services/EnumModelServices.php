@@ -28,7 +28,7 @@ class EnumModelServices
             foreach ($enumRef->getConstants() as $constRef) {
                 $constDoc = DocBlockReader::parse($enumRef->getReflectionConstant($constRef->name)->getDocComment());
                 $const = new EnumConstModel();
-                $const->label = $constDoc['value'] ?? $constRef->name;
+                $const->label = $constDoc['label'] ?? $constRef->name;
                 $const->value = $constDoc['value'] ?? $constRef->value;
                 $const->color = $constDoc['color'] ?? self::getRandomColor();
                 $const->textColor = $constDoc['textColor'] ?? self::getTextColor($const->color);

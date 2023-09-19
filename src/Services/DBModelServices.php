@@ -26,7 +26,7 @@ class DBModelServices
         'float' => 'numeric',
 //        'double' => 'float',
         'decimal' => 'numeric',
-//        'date' => 'date',
+        'date' => 'date',
         'datetime' => 'date',
 //        'timestamp' => 'timestamp',
         'time' => 'time',
