@@ -100,6 +100,7 @@ class DocToolsServices
 //                        "x-action-name" => $action->methodName,
                         "summary" => $action->uri,
                         "description" => $action->intro,
+                        "x-is-download" => $action->isDownload,
                         "requestBody" => count($action->params) == 0 ? null : [
                             "content" => [
                                 'application/x-www-form-urlencoded' => [

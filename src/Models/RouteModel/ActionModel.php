@@ -19,4 +19,5 @@ class ActionModel
      * @var ParamModel[]
      */
     public array $params;
+    public bool $isDownload;
 }
