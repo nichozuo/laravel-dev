@@ -3,6 +3,10 @@
 namespace LaravelDev\App\Traits;
 
 
+use LaravelDev\App\Exceptions\Err;
+use LaravelDev\Services\EnumModelServices;
+use ReflectionClass;
+
 /**
  * @method static cases()
  */
@@ -52,5 +56,54 @@ trait EnumTrait
             }
         }
         return $max;
+    }
+
+    /**
+     * @param mixed|null $label
+     * @param bool $throw
+     * @return null
+     * @throws Err
+     */
+    public static function GetValueByLabel(mixed $label = null, bool $throw = false)
+    {
+        if (!$label && $throw)
+            ee("枚举值不能为空");
+
+        $enumRef = new ReflectionClass(self::class);
+        $consts = EnumModelServices::GetConsts($enumRef);
+        foreach ($consts as $item) {
+            if ($item->label == $label) {
+                return $item->value;
+            }
+        }
+
+        if ($throw)
+            ee("枚举值不存在");
+        return null;
+    }
+
+    /**
+     * @param mixed|null $value
+     * @param bool $throw
+     * @return string|null
+     * @throws Err
+     */
+    public static function GetLabelByValue(mixed $value = null, bool $throw = false): ?string
+    {
+        if (!$value && $throw)
+            ee("枚举值不能为空");
+
+        $enumRef = new ReflectionClass(self::class);
+        $consts = EnumModelServices::GetConsts($enumRef);
+
+        foreach ($consts as $item) {
+            if ($item->value == $value) {
+                return $item->label;
+            }
+        }
+
+        if ($throw)
+            ee("枚举值不存在");
+        return null;
     }
 }

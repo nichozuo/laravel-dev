@@ -23,26 +23,33 @@ class EnumModelServices
             $enumRef = new ReflectionClass('\\App\\Enums\\' . $enumName);
             $enumDoc = DocBlockReader::parse($enumRef->getDocComment());
 
-            // 获取常量
-            $consts = [];
-            foreach ($enumRef->getConstants() as $constRef) {
-                $constDoc = DocBlockReader::parse($enumRef->getReflectionConstant($constRef->name)->getDocComment());
-                $const = new EnumConstModel();
-                $const->label = $constDoc['label'] ?? $constRef->name;
-                $const->value = $constDoc['value'] ?? $constRef->value;
-                $const->color = $constDoc['color'] ?? self::getRandomColor();
-                $const->textColor = $constDoc['textColor'] ?? self::getTextColor($const->color);
-                $consts[] = $const;
-            }
-
             $enum = new EnumModel();
             $enum->name = $enumName;
             $enum->intro = $enumDoc['intro'] ?? '';
-            $enum->consts = $consts;
+            $enum->consts = self::GetConsts($enumRef);
 
             $enums[] = $enum;
         }
         return $enums;
+    }
+
+    /**
+     * @return EnumConstModel[]
+     */
+    public static function GetConsts(ReflectionClass $enumRef): array
+    {
+        // 获取常量
+        $consts = [];
+        foreach ($enumRef->getConstants() as $constRef) {
+            $constDoc = DocBlockReader::parse($enumRef->getReflectionConstant($constRef->name)->getDocComment());
+            $const = new EnumConstModel();
+            $const->label = $constDoc['label'] ?? $constRef->name;
+            $const->value = $constDoc['value'] ?? $constRef->value;
+            $const->color = $constDoc['color'] ?? self::getRandomColor();
+            $const->textColor = $constDoc['textColor'] ?? self::getTextColor($const->color);
+            $consts[] = $const;
+        }
+        return $consts;
     }
 
     /**
