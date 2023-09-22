@@ -14,20 +14,22 @@ use Illuminate\Support\Arr;
 use Carbon\Carbon;
 
 /**
+ * @method static ifWhereLikeKeyword(array $params, string $key, array $fields): Builder
+ * @method static forSelect(?string $key1 = 'id', ?string $key2 = 'name'): Builder
  * @method static ifWhereDateRange(array $params, string $key, ?string $field = null): Builder
- * @method static ifHasWhereLike(array $params, string $key, string $relationName, string $field): Builder
+ * @method static ifWhereNumberRange(array $params, string $key, ?string $field = null): Builder
  * @method static ifWhereLike(array $params, string $key, ?string $field = null): Builder
+ * @method static ifHasWhereLike(array $params, string $key, string $relationName, string $field): Builder
  * @method static ifWhere(array $params, string $key, ?string $field = null): Builder
  * @method static order(string $key = 'orderBy'): Builder
  * @method static page(): LengthAwarePaginator
  * @method static self|null getById(int $id, bool $throw = true, bool $lock = false)
  * @method static self|null idp(array $params, bool $throw = true, bool $lock = false)
  * @method static unique(array $params, array $keys, string $label = null, string $field = 'id'): Builder
- * @method static lockForUpdate()
- * @method static forSelect(?string $key1 = 'id', ?string $key2 = 'name'): Builder
  *
+ * @method static lockForUpdate()
  * @method static create(array $params)
- * @method static where(string $field, string $value)
+ * @method static where(string $field, string $value, ?string $value)
  * @method static findOrFail(int $id)
  * @method static selectRaw(string $raw)
  * @method static whereIn(string $field, array $array)
@@ -41,6 +43,28 @@ use Carbon\Carbon;
  */
 trait ModelTrait
 {
+    /**
+     * @param Builder $builder
+     * @param array $params
+     * @param string $key
+     * @param array $fields
+     * @return Builder
+     */
+    public function scopeIfWhereLikeKeyword(Builder $builder, array $params, string $key, array $fields): Builder
+    {
+        $value = $params[$key] ?? null;
+        if ($value == '') $value = null;
+        if ($value) {
+            return $builder->where(function ($q) use ($value, $fields) {
+                foreach ($fields as $field) {
+                    $q->orWhere($field, 'like', "%$value%");
+                }
+            });
+        } else {
+            return $builder;
+        }
+    }
+
     /**
      * @param Builder $builder
      * @param string|null $key1
@@ -78,6 +102,34 @@ trait ModelTrait
             return $builder->where($field ?? $key, '<=', $end->endOfDay()->toDateTimeString());
         else
             return $builder->whereBetween($field ?? $key, [$start->toDateString(), $end->toDateString()]);
+    }
+
+    /**
+     * @param Builder $builder
+     * @param array $params
+     * @param string $key
+     * @param string|null $field
+     * @return Builder
+     * @throws Err
+     */
+    public function scopeIfWhereNumberRange(Builder $builder, array $params, string $key, ?string $field = null): Builder
+    {
+        if (!isset($params[$key]))
+            return $builder;
+
+        $dataRange = $params[$key];
+        if (count($dataRange) != 2)
+            ee("{$key}参数必须是两个值");
+
+        $start = $dataRange[0] ?? null;
+        $end = $dataRange[1] ?? null;
+
+        if ($start && !$end)
+            return $builder->where($field ?? $key, '>=', $start);
+        if (!$start && $end)
+            return $builder->where($field ?? $key, '<=', $end);
+        else
+            return $builder->whereBetween($field ?? $key, [$start, $end]);
     }
 
     /**
@@ -122,27 +174,27 @@ trait ModelTrait
         return ($params[$key] ?? false) ? $builder->where($field ?? $key, 'like', "%$params[$key]%") : $builder;
     }
 
-    /**
-     * @param Builder $builder
-     * @param array $params
-     * @param string $key
-     * @param array $fields
-     * @return Builder
-     */
-    public function scopeIfWhereKeyword(Builder $builder, array $params, string $key, array $fields): Builder
-    {
-        $value = $params[$key] ?? null;
-        if ($value == '') $value = null;
-        if ($value) {
-            return $builder->where(function ($q) use ($value, $fields) {
-                foreach ($fields as $field) {
-                    $q->orWhere($field, 'like', "%$value%");
-                }
-            });
-        } else {
-            return $builder;
-        }
-    }
+//    /**
+//     * @param Builder $builder
+//     * @param array $params
+//     * @param string $key
+//     * @param array $fields
+//     * @return Builder
+//     */
+//    public function scopeIfWhereKeyword(Builder $builder, array $params, string $key, array $fields): Builder
+//    {
+//        $value = $params[$key] ?? null;
+//        if ($value == '') $value = null;
+//        if ($value) {
+//            return $builder->where(function ($q) use ($value, $fields) {
+//                foreach ($fields as $field) {
+//                    $q->orWhere($field, 'like', "%$value%");
+//                }
+//            });
+//        } else {
+//            return $builder;
+//        }
+//    }
 
     /**
      * @param Builder $builder

@@ -26,7 +26,7 @@ trait EnumTrait
      */
     public static function comment(string $name): string
     {
-        return $name . ':' . implode(',', self::columns());
+        return $name . ':' . str_replace("App\\Enums\\", "", self::class);  //. implode(',', self::columns());
     }
 
     /**
