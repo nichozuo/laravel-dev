@@ -26,6 +26,7 @@ class EnumModelServices
             $enum = new EnumModel();
             $enum->name = $enumName;
             $enum->intro = $enumDoc['intro'] ?? '';
+            $enum->field = $enumDoc['field'] ?? '';
             $enum->consts = self::GetConsts($enumRef);
 
             $enums[] = $enum;

@@ -6,6 +6,7 @@ class EnumModel
 {
     public string $name;
     public string $intro;
+    public string $field;
     /**
      * @var EnumConstModel[]
      */
