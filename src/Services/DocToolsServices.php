@@ -59,7 +59,7 @@ class DocToolsServices
                 "type" => "object",
                 "title" => $enum->intro,
                 "x-type" => "enum",
-                "x-filed" => $enum->field,
+                "x-field" => $enum->field,
                 "properties" => self::getEnumProperties($enum)
             ];
         }
