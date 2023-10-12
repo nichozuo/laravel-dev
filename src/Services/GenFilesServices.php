@@ -4,6 +4,8 @@ namespace LaravelDev\Services;
 
 use Exception;
 use Illuminate\Support\Facades\File;
+use Illuminate\Support\Stringable;
+use ReflectionException;
 
 class GenFilesServices
 {
@@ -93,6 +95,55 @@ class GenFilesServices
         ], $content);
         $moduleName = implode('/', $moduleName);
         self::saveFile(app_path("Modules/$moduleName/{$table->modelName}Controller.php"), $content, $force);
+    }
+
+    /**
+     * @param string $fullName
+     * @param mixed $force
+     * @return void
+     * @throws ReflectionException
+     */
+    public static function GenTest(array $arr, mixed $force)
+    {
+        $fullName = "App\\Modules\\" . implode('\\', $arr) . "Controller";
+        $modelName = array_pop($arr);
+        $moduleName = implode("\\", $arr);
+
+        $r = RouterModelServices::GenRoutersModels()[$fullName] ?? null;
+        if (!$r)
+            return;
+
+        $stub = self::loadStub("Test");
+
+        $content = [];
+        foreach ($r->actions as $action) {
+            $name = str()->of($action->methodName)->camel()->ucfirst();
+            if (!count($action->params)) {
+                $content[] = "public function test$name()
+    {
+        \$this->go(__METHOD__);
+    }";
+            } else {
+                $fields = [];
+                foreach ($action->params as $param) {
+                    $fields[] = "'$param->key' => '', # $param->description";
+                }
+                $fieldsStr = implode(",\n\t\t\t", $fields);
+                $content[] = "public function test$name()
+    {
+        \$this->go(__METHOD__, [
+            $fieldsStr
+        ]);
+    }";
+            }
+        }
+        $contentStr = implode("\n\n\t", $content);
+        $content = self::replaceAll([
+            'moduleName' => $moduleName,
+            'modelName' => $modelName,
+            'content' => $contentStr,
+        ], $stub);
+        self::saveFile(base_path("tests/Modules/$moduleName/{$modelName}ControllerTest.php"), $content, $force);
     }
 
     /**

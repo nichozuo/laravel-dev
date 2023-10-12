@@ -40,6 +40,7 @@ use Carbon\Carbon;
  * @method fixTree()
  * @method up()
  * @method down()
+ * @method static whereNull(string $string)
  */
 trait ModelTrait
 {

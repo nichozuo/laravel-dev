@@ -68,7 +68,10 @@ class GenFilesCommand extends Command
             }, $arr);
             GenFilesServices::GenController($arr, $tableName, $force);
         } elseif ($options['test']) {
-            $this->line('TODO');
+            $arr = array_map(function ($part) {
+                return str()->of($part)->camel()->ucfirst();
+            }, explode('/', $key));
+            GenFilesServices::GenTest($arr, $force);
         } elseif ($options['enum']) {
             if (!Str::of($key)->endsWith('Enum'))
                 $key .= 'Enum';

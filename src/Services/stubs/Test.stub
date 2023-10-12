@@ -1,14 +1,19 @@
 <?php
 
-namespace Tests\Modules\{{$ModuleName}};
+namespace Tests\Modules\{$moduleName};
 
 
 use Tests\TestCase;
 
 /**
- * {{$ControllerName}}
+ * {$modelName}Controller
  */
-class {{$ModuleName}}ControllerTest extends TestCase
+class {$modelName}ControllerTest extends TestCase
 {
-__content__
+    protected function setUp(): void
+    {
+        parent::setUp();
+    }
+
+    {$content}
 }

@@ -19,7 +19,13 @@ class RouterDumpCommand extends Command
     {
         $name = $this->argument('controller');
         $controllers = RouterModelServices::GenRoutersModels();
-        dump(json_encode($controllers));
+
+        $arr = array_map(function ($part) {
+            return str()->of($part)->camel()->ucfirst();
+        }, explode('/', $name));
+        $fullName = "App\\Modules\\" . implode('\\', $arr) . "Controller";
+
+        dump($fullName, $controllers[$fullName] ?? null);
 
         return 0;
     }
