@@ -15,7 +15,7 @@ trait EnumTrait
     /**
      * @return array
      */
-    public static function columns(): array
+    public static function values(): array
     {
         return array_column(self::cases(), 'value');
     }
@@ -30,32 +30,14 @@ trait EnumTrait
     }
 
     /**
-     * @return array
-     */
-    public static function nameAndValue(): array
-    {
-        $data = [];
-        foreach (self::cases() as $item) {
-            $data[] = [
-                'name' => $item->name,
-                'value' => $item->value,
-            ];
-        }
-        return $data;
-    }
-
-    /**
      * @return int
      */
     public static function GetMaxLength(): int
     {
-        $max = 0;
-        foreach (self::cases() as $item) {
-            if ($max < strlen($item->value)) {
-                $max = strlen($item->value);
-            }
-        }
-        return $max;
+        $arr = array_map(function ($item) {
+            return strlen($item->value);
+        }, self::cases());
+        return max($arr);
     }
 
     /**
@@ -105,5 +87,17 @@ trait EnumTrait
         if ($throw)
             ee("枚举值不存在");
         return null;
+    }
+
+    /**
+     * @param string $value
+     * @return true
+     */
+    public static function IsValueInEnum(string $value): bool
+    {
+        foreach (self::cases() as $item)
+            if ($item->value == $value)
+                return true;
+        return false;
     }
 }
