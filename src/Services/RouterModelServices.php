@@ -115,7 +115,8 @@ class RouterModelServices
             $action->skipAuth = isset($doc['skipAuth']);
             $action->skipWrap = isset($doc['skipWrap']);
             $action->action = "$method->class@$method->name";
-            $action->isDownload = ($doc['return'] && Str::contains($doc['return'], 'StreamedResponse')) || isset($doc['isDownload']);
+            $action->isDownload = (($doc['return'] ?? false) && Str::contains($doc['return'], 'StreamedResponse')) || isset($doc['isDownload']);
+            $action->resp = $doc['resp'] ?? null;
 
             // method
             if (isset($doc['method'])) {
