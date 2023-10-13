@@ -44,8 +44,8 @@ class ServiceProvider extends \Illuminate\Support\ServiceProvider
         // blueprint macros
         Blueprint::macro('xEnum', function (string $column, mixed $enumClass, string $comment) {
             $length = $enumClass::GetMaxLength();
-            $allowed = $enumClass::columns();
-            return $this->addColumn('enum', $column, compact('length', 'allowed'))->comment($enumClass::comment($comment));
+            $allowed = $enumClass::Values();
+            return $this->addColumn('enum', $column, compact('length', 'allowed'))->comment($enumClass::Comment($comment));
         });
     }
 

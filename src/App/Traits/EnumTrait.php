@@ -15,7 +15,7 @@ trait EnumTrait
     /**
      * @return array
      */
-    public static function columns(): array
+    public static function Values(): array
     {
         return array_column(self::cases(), 'value');
     }
@@ -24,24 +24,9 @@ trait EnumTrait
      * @param string $name
      * @return string
      */
-    public static function comment(string $name): string
+    public static function Comment(string $name): string
     {
         return $name . ':' . str_replace("App\\Enums\\", "", self::class);  //. implode(',', self::columns());
-    }
-
-    /**
-     * @return array
-     */
-    public static function nameAndValue(): array
-    {
-        $data = [];
-        foreach (self::cases() as $item) {
-            $data[] = [
-                'name' => $item->name,
-                'value' => $item->value,
-            ];
-        }
-        return $data;
     }
 
     /**
@@ -49,13 +34,10 @@ trait EnumTrait
      */
     public static function GetMaxLength(): int
     {
-        $max = 0;
-        foreach (self::cases() as $item) {
-            if ($max < strlen($item->value)) {
-                $max = strlen($item->value);
-            }
-        }
-        return $max;
+        $lens = array_map(function ($item) {
+            return strlen($item->value);
+        }, self::cases());
+        return max($lens);
     }
 
     /**
@@ -64,7 +46,7 @@ trait EnumTrait
      * @return null
      * @throws Err
      */
-    public static function GetValueByLabel(mixed $label = null, bool $throw = false)
+    public static function GetValueByLabel(mixed $label = null, bool $throw = true)
     {
         if (!$label && $throw)
             ee("枚举值不能为空");
@@ -88,7 +70,7 @@ trait EnumTrait
      * @return string|null
      * @throws Err
      */
-    public static function GetLabelByValue(mixed $value = null, bool $throw = false): ?string
+    public static function GetLabelByValue(mixed $value = null, bool $throw = true): ?string
     {
         if (!$value && $throw)
             ee("枚举值不能为空");
@@ -105,5 +87,21 @@ trait EnumTrait
         if ($throw)
             ee("枚举值不存在");
         return null;
+    }
+
+    /**
+     * @param mixed|null $value
+     * @param bool $throw
+     * @return bool
+     * @throws Err
+     */
+    public static function IsValueInEnum(mixed $value = null, bool $throw = true): bool
+    {
+        if (!in_array($value, self::Values())) {
+            if ($throw)
+                ee("枚举值不存在");
+            return false;
+        }
+        return true;
     }
 }
