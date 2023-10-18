@@ -104,4 +104,17 @@ trait EnumTrait
         }
         return true;
     }
+
+    /**
+     * @return array|string[]
+     */
+    public static function GetLabels(): array
+    {
+        $enumRef = new ReflectionClass(self::class);
+        $consts = EnumModelServices::GetConsts($enumRef);
+
+        return array_map(function ($item) {
+            return $item->label;
+        }, $consts);
+    }
 }
