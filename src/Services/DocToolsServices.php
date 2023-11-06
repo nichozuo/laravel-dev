@@ -21,7 +21,7 @@ class DocToolsServices
         $enums = EnumModelServices::GetEnums();
 
         return [
-            'openapi' => '3.0.1',
+            'openapi' => '3.0.3',
             'info' => [
                 'title' => config('app.name'),
                 'version' => '0.0.x',
@@ -73,7 +73,7 @@ class DocToolsServices
     private static function getTags(array $controllers): array
     {
         $tags = [];
-        foreach ($controllers as $key => $value) {
+        foreach ($controllers as $value) {
             $tags[] = [
                 "name" => implode('/', $value->modules),
                 "description" => $value->intro
@@ -89,20 +89,18 @@ class DocToolsServices
     private static function getPaths(array $controllers): array
     {
         $paths = [];
-        foreach ($controllers as $key => $controller) {
+        foreach ($controllers as $controller) {
             $folder = implode("/", $controller->modules);
             foreach ($controller->actions as $action) {
                 list($properties, $required) = self::getDBPropertiesAndRequired($action->params);
                 $paths["/$controller->routerPrefix/$action->uri"] = [
                     strtolower($action->method[0]) => [
                         "tags" => [$folder],
-//                        "x-apifox-folder" => $folder,
-//                        "x-module-name" => str_replace("Controller", "", $controller->controllerName),
-//                        "x-action-name" => $action->methodName,
                         "summary" => $action->uri,
                         "description" => $action->intro,
                         "x-is-download" => $action->isDownload,
                         "x-resp" => $action->resp,
+                        "responses" => [],
                         "requestBody" => count($action->params) == 0 ? null : [
                             "content" => [
                                 'application/x-www-form-urlencoded' => [
