@@ -14,11 +14,12 @@ trait ControllerTrait
      */
     protected function crypto(array &$params, string $key = 'password'): void
     {
-        if (isset($params[$key])) {
-            if ($params[$key] == '')
+        if (array_key_exists($key, $params)) {
+            if ($params[$key] == '' || $params[$key] == null) {
                 unset($params[$key]);
-            else
+            } else {
                 $params[$key] = bcrypt($params[$key]);
+            }
         }
     }
 
