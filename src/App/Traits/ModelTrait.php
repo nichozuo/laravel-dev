@@ -16,7 +16,7 @@ use Carbon\Carbon;
 /**
  * @method static ifWhereLikeKeyword(array $params, string $key, array $fields): Builder
  * @method static forSelect(?string $key1 = 'id', ?string $key2 = 'name'): Builder
- * @method static ifWhereDateRange(array $params, string $key, ?string $field = null): Builder
+ * @method static ifWhereDateRange(array $params, string $key, ?string $field = null, ?string $type = 'datetime'): Builder
  * @method static ifWhereNumberRange(array $params, string $key, ?string $field = null): Builder
  * @method static ifWhereLike(array $params, string $key, ?string $field = null): Builder
  * @method static ifHasWhereLike(array $params, string $key, string $relationName, string $field): Builder
@@ -82,27 +82,32 @@ trait ModelTrait
      * @param array $params
      * @param string $key
      * @param string|null $field
+     * @param string|null $type
      * @return Builder
      * @throws Err
      */
-    public function scopeIfWhereDateRange(Builder $builder, array $params, string $key, ?string $field = null): Builder
+    public function scopeIfWhereDateRange(Builder $builder, array $params, string $key, ?string $field = null, ?string $type = 'datetime'): Builder
     {
         if (!isset($params[$key]))
             return $builder;
 
-        $dataRange = $params[$key];
-        if (count($dataRange) != 2)
+        $range = $params[$key];
+        if (count($range) != 2)
             ee("{$key}参数必须是两个值");
 
-        $start = $dataRange[0] == '' || $dataRange[0] == null ? null : Carbon::parse($dataRange[0]);
-        $end = $dataRange[1] == '' || $dataRange[1] == null ? null : Carbon::parse($dataRange[1]);
+        $start = $range[0] == '' || $range[0] == null ? null : Carbon::parse($range[0]);
+        $end = $range[1] == '' || $range[1] == null ? null : Carbon::parse($range[1]);
 
+        $start = $start ? ($type == 'date' ? $start->toDateString() : $start->startOfDay()->toDateTimeString()) : null;
+        $end = $end ? ($type == 'date' ? $end->toDateString() : $end->endOfDay()->toDateTimeString()) : null;
+
+        $field = $field ?? $key;
         if ($start && !$end)
-            return $builder->where($field ?? $key, '>=', $start->startOfDay()->toDateTimeString());
+            return $builder->where($field, '>=', $start);
         if (!$start && $end)
-            return $builder->where($field ?? $key, '<=', $end->endOfDay()->toDateTimeString());
+            return $builder->where($field, '<=', $end);
         else
-            return $builder->whereBetween($field ?? $key, [$start->toDateString(), $end->toDateString()]);
+            return $builder->whereBetween($field, [$start, $end]);
     }
 
     /**
@@ -160,7 +165,7 @@ trait ModelTrait
      */
     public function scopeIfWhere(Builder $builder, array $params, string $key, ?string $field = null): Builder
     {
-        return ($params[$key] ?? false) ? $builder->where($field ?? $key, $params[$key]) : $builder;
+        return (array_key_exists($key, $params)) ? $builder->where($field ?? $key, $params[$key]) : $builder;
     }
 
     /**
