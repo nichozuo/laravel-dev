@@ -21,15 +21,15 @@ class DocToolsServices
         $enums = EnumModelServices::GetEnums();
 
         return [
-            'openapi' => '3.0.3',
+            'openapi' => '3.1.0',
             'info' => [
                 'title' => config('app.name'),
                 'version' => '0.0.x',
             ],
             'servers' => [
                 [
-                    "description" => "Server Address",
-                    "url" => config('app.url') . "/api/"
+                    "url" => config('app.url') . "/api/",
+                    "description" => "Server Address"
                 ]
             ],
             'tags' => self::getTags($controllers),
@@ -45,6 +45,28 @@ class DocToolsServices
      */
     private static function getComponents(DBModel $db, array $enums): array
     {
+        $responses = [
+            "DefaultResponse" => [
+                "description" => "默认响应",
+                "content" => [
+                    "application/json" => [
+                        "schema" => [
+                            "type" => "object",
+                            "properties" => [
+                                "success" => [
+                                    "type" => "boolean"
+                                ],
+                                "data" => [
+                                    "type" => "object"
+                                ]
+                            ],
+                            "required" => ['success', 'data']
+                        ]
+                    ]
+                ]
+            ]
+        ];
+
         $schemas = [];
         foreach ($db->tables as $table) {
             $schemas[$table->name] = [
@@ -63,7 +85,11 @@ class DocToolsServices
                 "properties" => self::getEnumProperties($enum)
             ];
         }
-        return $schemas;
+
+        return [
+            'responses' => $responses,
+            'schemas' => $schemas
+        ];
     }
 
     /**
@@ -99,8 +125,7 @@ class DocToolsServices
                         "summary" => $action->uri,
                         "description" => $action->intro,
                         "x-is-download" => $action->isDownload,
-                        "x-resp" => $action->resp,
-                        "responses" => [],
+                        "x-response-json" => $action->resp,
                         "requestBody" => count($action->params) == 0 ? null : [
                             "content" => [
                                 'application/x-www-form-urlencoded' => [
@@ -110,6 +135,11 @@ class DocToolsServices
                                         "required" => $required,
                                     ]
                                 ]
+                            ],
+                        ],
+                        "responses" => [
+                            "default" => [
+                                '$ref' => '#/components/responses/DefaultResponse'
                             ]
                         ]
                     ]
