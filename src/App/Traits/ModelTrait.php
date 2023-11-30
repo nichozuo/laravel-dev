@@ -157,6 +157,16 @@ trait ModelTrait
     }
 
     /**
+     * @param array $params
+     * @param string $key
+     * @return bool
+     */
+    private function valid(array $params, string $key): bool
+    {
+        return array_key_exists($key, $params) && !empty($params[$key]);
+    }
+
+    /**
      * @param Builder $builder
      * @param array $params 请求参数
      * @param string $key 请求参数的key
@@ -165,7 +175,7 @@ trait ModelTrait
      */
     public function scopeIfWhere(Builder $builder, array $params, string $key, ?string $field = null): Builder
     {
-        return (array_key_exists($key, $params)) ? $builder->where($field ?? $key, $params[$key]) : $builder;
+        return ($this->valid($params, $key)) ? $builder->where($field ?? $key, $params[$key]) : $builder;
     }
 
     /**
@@ -177,7 +187,7 @@ trait ModelTrait
      */
     public function scopeIfWhereLike(Builder $builder, array $params, string $key, ?string $field = null): Builder
     {
-        return ($params[$key] ?? false) ? $builder->where($field ?? $key, 'like', "%$params[$key]%") : $builder;
+        return ($this->valid($params, $key)) ? $builder->where($field ?? $key, 'like', "%$params[$key]%") : $builder;
     }
 
 //    /**

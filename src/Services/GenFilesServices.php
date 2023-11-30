@@ -4,7 +4,6 @@ namespace LaravelDev\Services;
 
 use Exception;
 use Illuminate\Support\Facades\File;
-use Illuminate\Support\Stringable;
 use ReflectionException;
 
 class GenFilesServices
@@ -98,16 +97,17 @@ class GenFilesServices
     }
 
     /**
-     * @param string $fullName
+     * @param array $arr
      * @param mixed $force
      * @return void
      * @throws ReflectionException
      */
-    public static function GenTest(array $arr, mixed $force)
+    public static function GenTest(array $arr, mixed $force): void
     {
         $fullName = "App\\Modules\\" . implode('\\', $arr) . "Controller";
         $modelName = array_pop($arr);
         $moduleName = implode("\\", $arr);
+        $moduleNamePath = implode(DIRECTORY_SEPARATOR, $arr);
 
         $r = RouterModelServices::GenRoutersModels()[$fullName] ?? null;
         if (!$r)
@@ -143,7 +143,7 @@ class GenFilesServices
             'modelName' => $modelName,
             'content' => $contentStr,
         ], $stub);
-        self::saveFile(base_path("tests/Modules/$moduleName/{$modelName}ControllerTest.php"), $content, $force);
+        self::saveFile(base_path("tests/Modules/$moduleNamePath/{$modelName}ControllerTest.php"), $content, $force);
     }
 
     /**
