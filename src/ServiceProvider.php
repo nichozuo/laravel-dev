@@ -60,5 +60,7 @@ class ServiceProvider extends \Illuminate\Support\ServiceProvider
         ]);
 
         $this->loadRoutesFrom(__DIR__ . '/api.php');
+
+        require_once(__DIR__ . '/helpers.php'); // register ee() helper
     }
 }

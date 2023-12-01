@@ -25,7 +25,10 @@
     "autoload": {
         "psr-4": {
             "LaravelDev\\": "src"
-        }
+        },
+        "files": [
+            "src/helpers.php"
+        ]
     },
     "extra": {
         "laravel": {
