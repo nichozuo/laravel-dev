@@ -1,6 +1,6 @@
 <?php
 
-namespace LaravelDev\Commands;
+namespace LaravelDev\Commands\GenFiles;
 
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Artisan;
@@ -12,13 +12,15 @@ class GenAllModelsCommand extends Command
     protected $description = 'Gen All Models';
 
     /**
-     * @return void
+     * @return int
      */
-    public function handle(): void
+    public function handle(): int
     {
         foreach (DBModelServices::GetDBModel()->tableKeys as $name) {
             $this->line($name . ':::');
-            Artisan::call("gf -d -f $name");
+            Artisan::call("gd -f $name");
         }
+
+        return self::SUCCESS;
     }
 }

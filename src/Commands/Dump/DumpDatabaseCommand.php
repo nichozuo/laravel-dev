@@ -1,14 +1,14 @@
 <?php
 
-namespace LaravelDev\Commands;
+namespace LaravelDev\Commands\Dump;
 
 use Exception;
 use Illuminate\Console\Command;
 use LaravelDev\Services\DBModelServices;
 
-class DBDumpModelCommand extends Command
+class DumpDatabaseCommand extends Command
 {
-    protected $signature = 'dm {table} {column?}';
+    protected $signature = 'dd {table} {column?}';
     protected $description = 'dump table from db model';
 
     /**
@@ -28,6 +28,6 @@ class DBDumpModelCommand extends Command
         } else {
             dump($table);
         }
-        return 0;
+        return self::SUCCESS;
     }
 }

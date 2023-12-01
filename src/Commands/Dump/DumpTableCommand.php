@@ -1,12 +1,12 @@
 <?php
 
-namespace LaravelDev\Commands;
+namespace LaravelDev\Commands\Dump;
 
 use Exception;
 use Illuminate\Console\Command;
 use LaravelDev\Services\DBModelServices;
 
-class DBDumpTableCommand extends Command
+class DumpTableCommand extends Command
 {
     protected $signature = 'dt {table}';
     protected $description = 'dump the fields of the table';
@@ -33,6 +33,6 @@ class DBDumpTableCommand extends Command
         $this->warn('gen Insert template');
         $this->line(implode("\n", $table->insert));
 
-        return 0;
+        return self::SUCCESS;
     }
 }

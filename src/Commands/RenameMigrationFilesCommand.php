@@ -24,9 +24,9 @@ class RenameMigrationFilesCommand extends BaseCommand
     }
 
     /**
-     * @return void
+     * @return int
      */
-    public function handle(): void
+    public function handle(): int
     {
         $migrationPath = database_path('migrations/');
         $files = File::allFiles($migrationPath);
@@ -39,6 +39,8 @@ class RenameMigrationFilesCommand extends BaseCommand
             File::move($migrationPath . $oldFileName, $migrationPath . $newFileName);
             $this->line("$oldFileName ==> $newFileName");
         }
+
+        return self::SUCCESS;
     }
 
     /**

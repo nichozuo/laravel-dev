@@ -3,16 +3,18 @@
 namespace LaravelDev;
 
 use Illuminate\Database\Schema\Blueprint;
-use LaravelDev\Commands\DBBackupCommand;
-use LaravelDev\Commands\DBCacheCommand;
-use LaravelDev\Commands\DBDumpModelCommand;
-use LaravelDev\Commands\DBDumpTableCommand;
-use LaravelDev\Commands\GenAllEnumsCommand;
-use LaravelDev\Commands\GenAllModelsCommand;
-use LaravelDev\Commands\GenFilesCommand;
+use LaravelDev\Commands\Database\DBCacheCommand;
+use LaravelDev\Commands\Database\DBSeedCommand;
+use LaravelDev\Commands\Dump\DumpDatabaseCommand;
+use LaravelDev\Commands\Dump\DumpRouterCommand;
+use LaravelDev\Commands\Dump\DumpTableCommand;
+use LaravelDev\Commands\GenFiles\GenAllModelsCommand;
+use LaravelDev\Commands\GenFiles\GenControllerCommand;
+use LaravelDev\Commands\GenFiles\GenEnumCommand;
+use LaravelDev\Commands\GenFiles\GenMigrationCommand;
+use LaravelDev\Commands\GenFiles\GenModelCommand;
+use LaravelDev\Commands\GenFiles\GenTestCommand;
 use LaravelDev\Commands\RenameMigrationFilesCommand;
-use LaravelDev\Commands\RouterDumpCommand;
-use LaravelDev\Commands\UpdateModelsCommand;
 
 
 /**
@@ -28,17 +30,20 @@ class ServiceProvider extends \Illuminate\Support\ServiceProvider
         // commands
         $this->commands([
             DBCacheCommand::class,
-            DBBackupCommand::class,
-            DBDumpTableCommand::class,
-            DBDumpModelCommand::class,
+            DBSeedCommand::class,
 
-            RouterDumpCommand::class,
+            DumpDatabaseCommand::class,
+            DumpRouterCommand::class,
+            DumpTableCommand::class,
 
-            GenFilesCommand::class,
-            GenAllEnumsCommand::class,
             GenAllModelsCommand::class,
+            GenControllerCommand::class,
+            GenEnumCommand::class,
+            GenMigrationCommand::class,
+            GenModelCommand::class,
+            GenTestCommand::class,
+
             RenameMigrationFilesCommand::class,
-            UpdateModelsCommand::class,
         ]);
 
         // blueprint macros

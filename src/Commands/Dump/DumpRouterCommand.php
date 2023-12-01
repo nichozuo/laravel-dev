@@ -1,12 +1,13 @@
 <?php
 
-namespace LaravelDev\Commands;
+namespace LaravelDev\Commands\Dump;
 
 use Exception;
 use Illuminate\Console\Command;
+use Illuminate\Support\Str;
 use LaravelDev\Services\RouterModelServices;
 
-class RouterDumpCommand extends Command
+class DumpRouterCommand extends Command
 {
     protected $signature = 'dr {controller}';
     protected $description = 'dump controller';
@@ -20,14 +21,13 @@ class RouterDumpCommand extends Command
         $name = $this->argument('controller');
         $controllers = RouterModelServices::GenRoutersModels();
 
-        $arr = array_map(function ($part) {
-            return str()->of($part)->camel()->ucfirst();
-        }, explode('/', $name));
-        $fullName = "App\\Modules\\" . implode('\\', $arr) . "Controller";
+        $fullName = Str::of($name)->explode('/')->map(function ($part) {
+                return Str::of($part)->camel()->ucfirst();
+            })->prepend('App\\Modules')->implode('\\') . "Controller";
 
         dump($fullName, $controllers[$fullName] ?? null);
 
-        return 0;
+        return self::SUCCESS;
     }
 }
 

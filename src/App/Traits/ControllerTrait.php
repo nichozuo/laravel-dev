@@ -3,7 +3,6 @@
 namespace LaravelDev\App\Traits;
 
 
-use Exception;
 use LaravelDev\App\Exceptions\Err;
 
 trait ControllerTrait
@@ -36,7 +35,7 @@ trait ControllerTrait
 
         $allow = config('project.perPageAllow', [10, 20, 50, 100,500,1000]);
         if (!in_array($params['perPage'], $allow))
-            Err::Throw('分页数据不在规定范围内');
+            ee('分页数据不在规定范围内');
 
         return (int)$params['perPage'];
     }

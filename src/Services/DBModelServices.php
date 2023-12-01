@@ -8,6 +8,7 @@ use Doctrine\DBAL\Types\Type;
 use Illuminate\Support\Facades\Cache;
 use Illuminate\Support\Facades\DB;
 use Illuminate\Support\Str;
+use LaravelDev\App\Exceptions\Err;
 use LaravelDev\Models\DBModel\DBModel;
 use LaravelDev\Models\DBModel\DBTableColumnModel;
 use LaravelDev\Models\DBModel\DBTableModel;
@@ -78,14 +79,14 @@ class DBModelServices
     /**
      * @param string $tableName
      * @return DBTableModel
-     * @throws \Exception
+     * @throws Err
      */
     public static function GetTable(string $tableName): DBTableModel
     {
         $dbModel = self::GetDBModel();
         $table = $dbModel->tables[$tableName] ?? null;
         if (!$table)
-            throw new \Exception("table $tableName not found");
+            ee("table $tableName not found");
         return $table;
     }
 

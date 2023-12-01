@@ -1,6 +1,6 @@
 <?php
 
-namespace LaravelDev\Commands;
+namespace LaravelDev\Commands\Database;
 
 use Doctrine\DBAL\Exception;
 use Illuminate\Console\Command;
@@ -9,7 +9,7 @@ use LaravelDev\Services\DBModelServices;
 class DBCacheCommand extends Command
 {
     protected $signature = 'dbc';
-    protected $description = 'Cache DBModel to disk';
+    protected $description = 'Cache DBModel to cache';
 
     /**
      * @return int
@@ -19,6 +19,7 @@ class DBCacheCommand extends Command
     {
         DBModelServices::ForceCache();
         $this->line('db cached...');
-        return 0;
+
+        return self::SUCCESS;
     }
 }

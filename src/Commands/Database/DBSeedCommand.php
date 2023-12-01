@@ -1,13 +1,13 @@
 <?php
 
-namespace LaravelDev\Commands;
+namespace LaravelDev\Commands\Database;
 
 use Illuminate\Console\Command;
 use Illuminate\Support\Facades\Artisan;
 
-class DBBackupCommand extends Command
+class DBSeedCommand extends Command
 {
-    protected $signature = 'dbb';
+    protected $signature = 'dbs';
     protected $description = 'iseed backup command';
 
     /**
@@ -15,11 +15,11 @@ class DBBackupCommand extends Command
      */
     public function handle(): int
     {
-        $list = config('project.dbBackupList', []);
-        foreach ($list as $item) {
+        collect(config('project.dbBackupList'))->each(function ($item) {
             $this->line("backup:::$item");
             Artisan::call("iseed $item --force");
-        }
-        return 0;
+        });
+
+        return self::SUCCESS;
     }
 }

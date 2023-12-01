@@ -3,7 +3,10 @@
 namespace LaravelDev\Services;
 
 use Exception;
+use Illuminate\Support\Collection;
 use Illuminate\Support\Facades\File;
+use Illuminate\Support\Stringable;
+use LaravelDev\App\Exceptions\Err;
 use ReflectionException;
 
 class GenFilesServices
@@ -18,6 +21,7 @@ class GenFilesServices
     public static function GenModels(string $tableName, bool $force): void
     {
         $table = DBModelServices::GetTable($tableName);
+
         // 生成BaseModel
         $useClasses = [];
         $useTraits = [];
@@ -53,7 +57,6 @@ class GenFilesServices
         $content = self::replaceAll([
             'useClasses' => implode("\n", $useClasses),
             'properties' => implode("\n ", $table->modelProperties),
-//            'methods' => '',
             'modelName' => $table->modelName,
             'useTraits' => implode("\n\t", $useTraits),
             'name' => config('project.tablePrefix') . $table->name,
@@ -64,52 +67,54 @@ class GenFilesServices
             'relations' => $table->relationsString,
             'casts' => DBModelServices::ParseCasts($table)
         ], $content);
-        self::saveFile(app_path("Models/Base/Base$table->modelName.php"), $content, $force);
+
+        self::saveFile(["Models", "Base", "Base$table->modelName.php"], $content, $force);
 
         // 生成Model
         $content = self::loadStub("Model");
         $content = self::replaceAll([
             'modelName' => $table->modelName,
         ], $content);
-        self::saveFile(app_path("Models/$table->modelName.php"), $content, false);
+
+        self::saveFile(["Models", "$table->modelName.php"], $content, false);
     }
 
     /**
-     * @param array $moduleName
-     * @param string $tableName
+     * @param Collection $modulesName
+     * @param Stringable $tableName
      * @param mixed $force
      * @return void
-     * @throws Exception
+     * @throws Err
      */
-    public static function GenController(array $moduleName, string $tableName, mixed $force): void
+    public static function GenController(Collection $modulesName, Stringable $tableName, mixed $force): void
     {
         $table = DBModelServices::GetTable($tableName);
 
         $content = self::loadStub($table->hasSoftDelete ? "ControllerSoftDelete" : "Controller");
         $content = self::replaceAll([
-            'moduleName' => implode('\\', $moduleName),
+            'moduleName' => $modulesName->implode('\\'),
             'modelName' => $table->modelName,
             'comment' => $table->comment,
             'validateString' => implode("\n\t\t\t", $table->validate),
         ], $content);
-        $moduleName = implode('/', $moduleName);
-        self::saveFile(app_path("Modules/$moduleName/{$table->modelName}Controller.php"), $content, $force);
+
+        self::saveFile(["Modules", ...$modulesName, "{$table->modelName}Controller.php"], $content, $force);
     }
 
     /**
-     * @param array $arr
+     * @param array $modulesName
+     * @param string $tableName
      * @param mixed $force
      * @return void
      * @throws ReflectionException
      */
-    public static function GenTest(array $arr, mixed $force): void
+    public static function GenTest(array $modulesName, string $tableName, mixed $force): void
     {
-        $fullName = "App\\Modules\\" . implode('\\', $arr) . "Controller";
-        $modelName = array_pop($arr);
-        $moduleName = implode("\\", $arr);
-        $moduleNamePath = implode(DIRECTORY_SEPARATOR, $arr);
+        $className = implode("\\", ["App", "Modules", ...$modulesName, "{$tableName}Controller"]);
+//        $modelName = array_pop($arr);
+        $moduleName = implode("\\", $modulesName);
 
-        $r = RouterModelServices::GenRoutersModels()[$fullName] ?? null;
+        $r = RouterModelServices::GenRoutersModels()[$className] ?? null;
         if (!$r)
             return;
 
@@ -138,26 +143,28 @@ class GenFilesServices
             }
         }
         $contentStr = implode("\n\n\t", $content);
+
         $content = self::replaceAll([
             'moduleName' => $moduleName,
-            'modelName' => $modelName,
+            'modelName' => $tableName,
             'content' => $contentStr,
         ], $stub);
-        self::saveFile(base_path("tests/Modules/$moduleNamePath/{$modelName}ControllerTest.php"), $content, $force);
+
+        self::saveFile(["..", "tests", "Modules", ...$modulesName, "{$tableName}ControllerTest.php"], $content, $force);
     }
 
     /**
-     * @param string $key
-     * @param mixed $force
+     * @param Stringable $key
+     * @param bool $force
      * @return void
      */
-    public static function GenEnum(string $key, mixed $force): void
+    public static function GenEnum(Stringable $key, bool $force): void
     {
         $content = self::loadStub("Enum");
         $content = self::replaceAll([
             'EnumName' => $key,
         ], $content);
-        self::saveFile(app_path("Enums/$key.php"), $content, $force);
+        self::saveFile(["Enums", "$key.php"], $content, $force);
     }
 
     /**
@@ -188,13 +195,14 @@ class GenFilesServices
     }
 
     /**
-     * @param string $filePath
+     * @param array $path
      * @param string $content
      * @param bool $force
      * @return void
      */
-    private static function saveFile(string $filePath, string $content, bool $force): void
+    private static function saveFile(array $path, string $content, bool $force): void
     {
+        $filePath = app_path(implode(DIRECTORY_SEPARATOR, $path));
         $exists = File::exists($filePath);
         if (!$exists || $force) {
             File::makeDirectory(File::dirname($filePath), 0755, true, true);
