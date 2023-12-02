@@ -25,7 +25,7 @@ class Base extends Command
     protected function getOptions(): array
     {
         return [
-            ['force', 'F', InputOption::VALUE_NONE, '是否强制覆盖'],
+            ['force', 'f', InputOption::VALUE_NONE, '是否强制覆盖'],
         ];
     }
 

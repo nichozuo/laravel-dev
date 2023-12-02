@@ -78,14 +78,15 @@ class DBModelServices
 
     /**
      * @param string $tableName
-     * @return DBTableModel
+     * @param bool|null $throw
+     * @return DBTableModel|null
      * @throws Err
      */
-    public static function GetTable(string $tableName): DBTableModel
+    public static function GetTable(string $tableName, ?bool $throw = true): ?DBTableModel
     {
         $dbModel = self::GetDBModel();
         $table = $dbModel->tables[$tableName] ?? null;
-        if (!$table)
+        if (!$table && $throw)
             ee("table $tableName not found");
         return $table;
     }

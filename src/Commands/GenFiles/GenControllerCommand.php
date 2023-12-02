@@ -29,7 +29,7 @@ class GenControllerCommand extends Base
             return Str::of($item)->studly()->toString();
         });
 
-        $tableName = Str::of(array_pop($modulesName))->snake();//->singular()->plural();
+        $tableName = Str::of($modulesName->pop())->snake();//->singular()->plural();
 
         GenFilesServices::GenController($modulesName, $tableName, $force);
 

@@ -88,17 +88,25 @@ class GenFilesServices
      */
     public static function GenController(Collection $modulesName, Stringable $tableName, mixed $force): void
     {
-        $table = DBModelServices::GetTable($tableName);
+        $table = DBModelServices::GetTable($tableName, false);
+        $modelName = $tableName->studly();
 
-        $content = self::loadStub($table->hasSoftDelete ? "ControllerSoftDelete" : "Controller");
-        $content = self::replaceAll([
-            'moduleName' => $modulesName->implode('\\'),
-            'modelName' => $table->modelName,
-            'comment' => $table->comment,
-            'validateString' => implode("\n\t\t\t", $table->validate),
-        ], $content);
-
-        self::saveFile(["Modules", ...$modulesName, "{$table->modelName}Controller.php"], $content, $force);
+        if ($table) {
+            $content = self::loadStub($table->hasSoftDelete ? "ControllerSoftDelete" : "Controller");
+            $content = self::replaceAll([
+                'moduleName' => $modulesName->implode('\\'),
+                'modelName' => $modelName,
+                'comment' => $table->comment,
+                'validateString' => implode("\n\t\t\t", $table->validate),
+            ], $content);
+        } else {
+            $content = self::loadStub("EmptyController");
+            $content = self::replaceAll([
+                'moduleName' => $modulesName->implode('\\'),
+                'modelName' => $modelName,
+            ], $content);
+        }
+        self::saveFile(["Modules", ...$modulesName, "{$modelName}Controller.php"], $content, $force);
     }
 
     /**
@@ -154,15 +162,17 @@ class GenFilesServices
     }
 
     /**
-     * @param Stringable $key
+     * @param string $key
+     * @param string|null $field
      * @param bool $force
      * @return void
      */
-    public static function GenEnum(Stringable $key, bool $force): void
+    public static function GenEnum(string $key, ?string $field = '', ?bool $force = false): void
     {
         $content = self::loadStub("Enum");
         $content = self::replaceAll([
             'EnumName' => $key,
+            'field' => $field,
         ], $content);
         self::saveFile(["Enums", "$key.php"], $content, $force);
     }
@@ -207,7 +217,7 @@ class GenFilesServices
         if (!$exists || $force) {
             File::makeDirectory(File::dirname($filePath), 0755, true, true);
             File::put($filePath, $content);
-            dump("Make file...$filePath");
+            dump($filePath);
         } else {
             dump("File exist");
         }

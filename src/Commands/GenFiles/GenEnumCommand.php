@@ -25,16 +25,25 @@ class GenEnumCommand extends Base
         list($name, $force) = $this->getNameAndForce();
 
         if (Str::of($name)->contains('/')) {
-            $name = Str::of($name)->explode('/')->map(function ($item) {
+            $arr = Str::of($name)->explode('/');
+
+            $field = $arr->last();
+
+            if (strtolower($field) != 'enum')
+                $arr->push('enum');
+
+            $enumName = $arr->map(function ($item) {
                 return Str::of($item)->studly();
             })->implode('');
+
+            GenFilesServices::GenEnum($enumName, field: $field, force: $force);
         } else {
             $name = Str::of($name)->studly();
-        }
-        if (!$name->endsWith('Enum'))
-            $name = $name->append('Enum');
+            if (!$name->endsWith('Enum'))
+                $name = $name->append('Enum');
 
-        GenFilesServices::GenEnum($name, $force);
+            GenFilesServices::GenEnum($name->toString(), force: $force);
+        }
 
         return self::SUCCESS;
     }

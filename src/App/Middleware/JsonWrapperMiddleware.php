@@ -15,19 +15,9 @@ class JsonWrapperMiddleware
     /**
      * @param Request $request
      * @param Closure $next
-     * @return Response|JsonResponse|BinaryFileResponse|StreamedResponse
+     * @return mixed
      */
-    private static function getResponse(Request $request, Closure $next): Response|JsonResponse|BinaryFileResponse|StreamedResponse
-    {
-        return $next($request);
-    }
-
-    /**
-     * @param Request $request
-     * @param Closure $next
-     * @return Response|JsonResponse|BinaryFileResponse|StreamedResponse
-     */
-    public function handle(Request $request, Closure $next): Response|JsonResponse|BinaryFileResponse|StreamedResponse
+    public function handle(Request $request, Closure $next): mixed
     {
         $response = $next($request);
         $base = ['success' => true];

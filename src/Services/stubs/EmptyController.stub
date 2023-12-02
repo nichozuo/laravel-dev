@@ -1,0 +1,11 @@
+<?php
+
+namespace App\Modules\{$moduleName};
+
+/**
+ * @intro {$modelName}Controller
+ */
+class {$modelName}Controller extends BaseController
+{
+
+}

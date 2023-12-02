@@ -6,6 +6,7 @@ use LaravelDev\App\Traits\EnumTrait;
 
 /**
  * @intro {$EnumName}
+ * @field {$field}
  */
 enum {$EnumName}: string
 {
