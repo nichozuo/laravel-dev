@@ -6,6 +6,7 @@ use Illuminate\Auth\AuthenticationException;
 use Illuminate\Http\JsonResponse;
 use Illuminate\Support\Facades\Log;
 use Illuminate\Validation\ValidationException;
+use LaravelDev\Utils\IpHelper;
 use Symfony\Component\HttpKernel\Exception\MethodNotAllowedHttpException;
 use Symfony\Component\HttpKernel\Exception\NotFoundHttpException;
 use Throwable;
@@ -27,7 +28,7 @@ class ExceptionRender
 
         $debugInfo = [
             'request' => [
-                'client' => $request->getClientIps()[0],
+                'client' => IpHelper::GetIp(),
                 'method' => $request->getMethod(),
                 'uri' => $request->getPathInfo(),
                 'params' => $request->all(),
