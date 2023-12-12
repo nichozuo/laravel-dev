@@ -28,7 +28,7 @@ trait TestCaseTrait
     protected function go(string $method, array $params = [], array $headers = []): void
     {
         list($module, $url) = $this->getUrl($method);
-        $headers['Authorization'] = 'Bearer ' . $this->token[$module] ?? '';
+        $headers['Authorization'] = $this->token[$module] ?? '';
         $url = $this->url ? $this->url . $url : $url;
         $response = $this->withHeaders($this->headers)->post($url, $params, $headers);
         $json = $response->json();
