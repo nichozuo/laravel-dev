@@ -4,6 +4,7 @@ namespace LaravelDev\Commands\Dump;
 
 use Exception;
 use Illuminate\Console\Command;
+use Illuminate\Support\Str;
 use LaravelDev\Services\DBModelServices;
 
 class DumpTableCommand extends Command
@@ -18,6 +19,7 @@ class DumpTableCommand extends Command
     public function handle(): int
     {
         $tableName = $this->argument('table');
+        $tableName = Str::of($tableName)->snake();
 
         $table = DBModelServices::GetTable($tableName);
         $fillable = implode("', '", $table->fillable);
