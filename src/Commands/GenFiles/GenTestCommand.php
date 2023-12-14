@@ -25,6 +25,8 @@ class GenTestCommand extends Base
     {
         list($name, $force) = $this->getNameAndForce();
 
+        $name = str_replace('Controller', '', $name);
+
         $arr = explode('/', $name);
 
         $tableName = Str::of(array_pop($arr))->studly()->toString();//->singular()->plural()->toString();
