@@ -5,6 +5,7 @@ namespace LaravelDev\Services;
 use Illuminate\Support\Facades\File;
 use Illuminate\Support\Facades\Route;
 use Illuminate\Support\Str;
+use LaravelDev\App\Exceptions\Err;
 use LaravelDev\App\Middleware\JsonWrapperMiddleware;
 use LaravelDev\Models\RouteModel\ActionModel;
 use LaravelDev\Models\RouteModel\ControllerModel;
@@ -18,6 +19,7 @@ class RouterModelServices
 {
     /**
      * @return void
+     * @throws Err
      * @throws ReflectionException
      */
     public static function Auto(): void
@@ -40,6 +42,7 @@ class RouterModelServices
 
     /**
      * @return ControllerModel[]
+     * @throws Err
      * @throws ReflectionException
      */
     public static function GenRoutersModels(): array
@@ -61,6 +64,7 @@ class RouterModelServices
     /**
      * @param string $pathName
      * @return ControllerModel
+     * @throws Err
      * @throws ReflectionException
      */
     private static function parseController(string $pathName): ControllerModel
@@ -95,6 +99,7 @@ class RouterModelServices
     /**
      * @param ReflectionClass $classRef
      * @return ActionModel[]
+     * @throws Err
      */
     private static function parseActions(ReflectionClass $classRef): array
     {
@@ -143,6 +148,7 @@ class RouterModelServices
     /**
      * @param ReflectionMethod $method
      * @return ParamModel[]
+     * @throws Err
      */
     private static function getParameters(ReflectionMethod $method): array
     {
@@ -176,6 +182,8 @@ class RouterModelServices
             $t1 = explode('\'', $item);
             if (count($t1) < 3) continue;
             $t2 = explode('|', $t1[3]);
+            if(count($t2) < 2)
+                ee("参数解析失败：$item");
             $t3 = explode('#', $t1[4]);
             $param->key = str_replace('.*.', '.\*.', $t1[1]);
             $param->required = $t2[0] != 'nullable';
@@ -188,6 +196,7 @@ class RouterModelServices
 
     /**
      * @return array
+     * @throws Err
      * @throws ReflectionException
      */
     public static function GenDocTree(): array
@@ -247,6 +256,7 @@ class RouterModelServices
 
     /**
      * @return array
+     * @throws Err
      * @throws ReflectionException
      */
     public static function GenDocList(): array
