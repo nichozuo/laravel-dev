@@ -74,7 +74,7 @@ trait ModelTrait
      */
     public function scopeForSelect(Builder $builder, ?string $key1 = 'id', ?string $key2 = 'name'): Collection|array
     {
-        return $builder->selectRaw("`$key1` as value, `$key2` as label")->get();
+        return $builder->selectRaw("$key1, $key2")->get();
     }
 
     /**
