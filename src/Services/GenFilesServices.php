@@ -114,6 +114,7 @@ class GenFilesServices
      * @param string $tableName
      * @param mixed $force
      * @return void
+     * @throws Err
      * @throws ReflectionException
      */
     public static function GenTest(array $modulesName, string $tableName, mixed $force): void

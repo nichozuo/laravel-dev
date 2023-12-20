@@ -9,7 +9,7 @@
         }
     ],
     "require": {
-        "php": "^8.1|^8.2",
+        "php": "^8.1|^8.2|^8.3",
         "ext-json": "*",
         "ext-pdo": "*",
         "ext-bcmath": "*",

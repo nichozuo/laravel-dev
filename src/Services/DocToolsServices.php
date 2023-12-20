@@ -2,6 +2,7 @@
 
 namespace LaravelDev\Services;
 
+use LaravelDev\App\Exceptions\Err;
 use LaravelDev\Models\DBModel\DBModel;
 use LaravelDev\Models\DBModel\DBTableModel;
 use LaravelDev\Models\EnumModel\EnumModel;
@@ -13,6 +14,7 @@ class DocToolsServices
     /**
      * @return array
      * @throws ReflectionException
+     * @throws Err
      */
     public static function GenOpenApiV3Doc(): array
     {
