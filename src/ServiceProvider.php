@@ -3,6 +3,7 @@
 namespace LaravelDev;
 
 use Illuminate\Database\Schema\Blueprint;
+use LaravelDev\App\Macros\BuilderMacros;
 use LaravelDev\Commands\Database\DBCacheCommand;
 use LaravelDev\Commands\Database\DBSeedCommand;
 use LaravelDev\Commands\Dump\DumpDatabaseCommand;
@@ -45,6 +46,9 @@ class ServiceProvider extends \Illuminate\Support\ServiceProvider
 
             RenameMigrationFilesCommand::class,
         ]);
+
+        //
+        BuilderMacros::boot();
 
         // blueprint macros
         Blueprint::macro('xEnum', function (string $column, mixed $enumClass, string $comment) {
