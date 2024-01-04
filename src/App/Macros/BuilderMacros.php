@@ -26,7 +26,8 @@ class BuilderMacros
     {
         function valid(array $params, string $key): bool
         {
-            return array_key_exists($key, $params) && !empty($params[$key]);
+//            logger()->debug($key, [array_key_exists($key, $params), !empty($params[$key])]);
+            return array_key_exists($key, $params) && $params[$key] !== '';
         }
 
         $_ifWhere = fn(array $params, string $key, ?string $field = null) => $this->when(valid($params, $key), fn($q) => $q->where($field ?? $key, $params[$key]));
@@ -115,6 +116,12 @@ class BuilderMacros
             return $this;
         };
 
+        $_getById = function (?int $id = null, bool $throw = true, bool $lock = false) {
+            if (!$id)
+                return null;
+            return $this->when($lock, fn($q) => $q->lockForUpdate())->when($throw, fn($q) => $q->findOrFail($id), fn($q) => $q->find($id));
+        };
+
         Builder::macro('ifWhere', $_ifWhere);
         Builder::macro('ifWhereLike', $_ifWhereLike);
         Builder::macro('ifWhereLikeKeyword', $_ifWhereLikeKeyword);
@@ -126,6 +133,6 @@ class BuilderMacros
 
         \Illuminate\Database\Eloquent\Builder::macro('forSelect', $_forSelect);
         \Illuminate\Database\Eloquent\Builder::macro('page', $_page);
-        \Illuminate\Database\Eloquent\Builder::macro('getById', fn(int $id, bool $throw = true, bool $lock = false) => $this->when($lock, fn($q) => $q->lockForUpdate())->when($throw, fn($q) => $q->findOrFail($id), fn($q) => $q->find($id)));
+        \Illuminate\Database\Eloquent\Builder::macro('getById', $_getById);
     }
 }
