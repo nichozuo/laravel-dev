@@ -9,15 +9,15 @@ use LaravelDev\App\Exceptions\ErrConst;
 
 class BuilderMacros
 {
-    /**
-     * @param array $params
-     * @param string $key
-     * @return bool
-     */
-    public static function valid(array $params, string $key): bool
-    {
-        return array_key_exists($key, $params) && !empty($params[$key]);
-    }
+//    /**
+//     * @param array $params
+//     * @param string $key
+//     * @return bool
+//     */
+//    public static function valid(array $params, string $key): bool
+//    {
+//        return array_key_exists($key, $params) && !empty($params[$key]);
+//    }
 
     /**
      * @return void
