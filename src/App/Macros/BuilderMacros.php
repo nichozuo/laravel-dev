@@ -111,7 +111,7 @@ class BuilderMacros
         Builder::macro('ifWhereLikeKeyword', $_ifWhereLikeKeyword);
         Builder::macro('ifWhereNumberRange', $_ifWhereNumberRange);
         Builder::macro('ifWhereDateRange', $_ifWhereDateRange);
-//        Builder::macro('ifHasWhereLike', $_ifHasWhereLike);
+        Builder::macro('ifHasWhereLike', $_ifHasWhereLike);
         Builder::macro('order', $_order);
         Builder::macro('unique', $_unique);
 
