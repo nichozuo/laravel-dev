@@ -14,11 +14,11 @@ class BuilderMacros
      */
     public static function boot(): void
     {
-        $_ifWhere = fn(array $params, string $key, ?string $field = null) => $this->when(array_key_exists($key, $params) && $params[$key] !== '', fn($q) => $q->where($field ?? $key, $params[$key]));
+        $_ifWhere = fn(array $params, string $key, ?string $field = null) => $this->when(array_key_exists($key, $params) && $params[$key] !== null && $params[$key] !== '', fn($q) => $q->where($field ?? $key, $params[$key]));
 
-        $_ifWhereLike = fn(array $params, string $key, ?string $field = null) => $this->when(array_key_exists($key, $params) && $params[$key] !== '', fn($q) => $q->where($field ?? $key, 'like', "%$params[$key]%"));
+        $_ifWhereLike = fn(array $params, string $key, ?string $field = null) => $this->when(array_key_exists($key, $params) && $params[$key] !== null && $params[$key] !== '', fn($q) => $q->where($field ?? $key, 'like', "%$params[$key]%"));
 
-        $_ifWhereLikeKeyword = fn(array $params, string $key, array $fields) => $this->when(array_key_exists($key, $params) && $params[$key] !== '',
+        $_ifWhereLikeKeyword = fn(array $params, string $key, array $fields) => $this->when(array_key_exists($key, $params) && $params[$key] !== null && $params[$key] !== '',
             fn() => $this->where(function ($q) use ($params, $key, $fields) {
                 foreach ($fields as $field)
                     $q->orWhere($field, 'like', "%$params[$key]%");
