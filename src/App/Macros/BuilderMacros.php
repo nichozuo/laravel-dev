@@ -10,30 +10,15 @@ use LaravelDev\App\Exceptions\ErrConst;
 class BuilderMacros
 {
     /**
-     * @param array $params
-     * @param string $key
-     * @return bool
-     */
-    public static function valid(array $params, string $key): bool
-    {
-        return array_key_exists($key, $params) && $params[$key] !== '';
-    }
-
-    /**
      * @return void
      */
     public static function boot(): void
     {
-//        function valid(array $params, string $key): bool
-//        {
-//            return array_key_exists($key, $params) && $params[$key] !== '';
-//        }
+        $_ifWhere = fn(array $params, string $key, ?string $field = null) => $this->when(array_key_exists($key, $params) && $params[$key] !== '', fn($q) => $q->where($field ?? $key, $params[$key]));
 
-        $_ifWhere = fn(array $params, string $key, ?string $field = null) => $this->when(self::valid($params, $key), fn($q) => $q->where($field ?? $key, $params[$key]));
+        $_ifWhereLike = fn(array $params, string $key, ?string $field = null) => $this->when(array_key_exists($key, $params) && $params[$key] !== '', fn($q) => $q->where($field ?? $key, 'like', "%$params[$key]%"));
 
-        $_ifWhereLike = fn(array $params, string $key, ?string $field = null) => $this->when(self::valid($params, $key), fn($q) => $q->where($field ?? $key, 'like', "%$params[$key]%"));
-
-        $_ifWhereLikeKeyword = fn(array $params, string $key, array $fields) => $this->when(self::valid($params, $key),
+        $_ifWhereLikeKeyword = fn(array $params, string $key, array $fields) => $this->when(array_key_exists($key, $params) && $params[$key] !== '',
             fn() => $this->where(function ($q) use ($params, $key, $fields) {
                 foreach ($fields as $field)
                     $q->orWhere($field, 'like', "%$params[$key]%");
@@ -81,7 +66,7 @@ class BuilderMacros
                 return $this->whereBetween($field, [$start, $end]);
         };
 
-        $_ifHasWhereLike = fn(array $params, string $key, string $relation, ?string $field = null) => $this->when(self::valid($params, $key), fn($q) => $q->whereHas($relation, fn($q1) => $q->where($field ?? $key, 'like', "%$params[$key]%")));
+        $_ifHasWhereLike = fn(array $params, string $key, string $relation, ?string $field = null) => $this->when(array_key_exists($key, $params) && $params[$key] !== '', fn($q) => $q->whereHas($relation, fn($q1) => $q->where($field ?? $key, 'like', "%$params[$key]%")));
 
         $_order = function (string $key = 'sorter') {
             $params = request()->validate([$key => 'nullable|array']);
