@@ -14,17 +14,17 @@ use Illuminate\Support\Arr;
 use Carbon\Carbon;
 
 /**
- * @method static ifWhere(array $params, string $key, ?string $field = null)
- * @method static ifWhereLike(array $params, string $key, ?string $field = null)
- * @method static ifWhereLikeKeyword(array $params, string $key, array $fields)
- * @method static ifWhereNumberRange(array $params, string $key, ?string $field = null)
- * @method static ifWhereDateRange(array $params, string $key, ?string $field = null, ?string $type = 'datetime')
- * @method static ifHasWhereLike(array $params, string $key, string $relation, ?string $field = null)
- * @method static order(string $key = 'sorter')
+ * @method static self ifWhere(array $params, string $key, ?string $field = null)
+ * @method static self ifWhereLike(array $params, string $key, ?string $field = null)
+ * @method static self ifWhereLikeKeyword(array $params, string $key, array $fields)
+ * @method static self ifWhereNumberRange(array $params, string $key, ?string $field = null)
+ * @method static self ifWhereDateRange(array $params, string $key, ?string $field = null, ?string $type = 'datetime')
+ * @method static self ifHasWhereLike(array $params, string $key, string $relation, ?string $field = null)
+ * @method static self order(?string $key = 'sorter', ?string $defaultField = 'id')
  * @method static unique(array $params, array $keys, string $label = null, string $field = 'id')
  * @method static forSelect(?string $key1 = 'id', ?string $key2 = 'name')
  * @method static page()
- * @method static getById(int $id, bool $throw = true, bool $lock = false)
+ * @method static self getById(int $id, bool $throw = true, bool $lock = false)
  *
  * @method static lockForUpdate()
  * @method static create(array $params)

@@ -68,7 +68,7 @@ class BuilderMacros
 
         $_ifHasWhereLike = fn(array $params, string $key, string $relation, ?string $field = null) => $this->when(array_key_exists($key, $params) && $params[$key] !== '', fn($q) => $q->whereHas($relation, fn($q1) => $q->where($field ?? $key, 'like', "%$params[$key]%")));
 
-        $_order = function (string $key = 'sorter') {
+        $_order = function (?string $key = 'sorter', ?string $defaultField = 'id') {
             $params = request()->validate([$key => 'nullable|array']);
             if ($params[$key] ?? false) {
                 $orderBy = $params[$key];
@@ -78,7 +78,7 @@ class BuilderMacros
                     return $this->orderBy($field, $sort);
                 }
             }
-            return $this->orderByDesc('id');
+            return $this->orderByDesc($defaultField);
         };
 
         $_page = function () {
