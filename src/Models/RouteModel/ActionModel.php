@@ -21,4 +21,5 @@ class ActionModel
     public array $params;
     public bool $isDownload;
     public ?string $resp;
+    public ?string $respIntro;
 }

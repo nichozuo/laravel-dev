@@ -128,6 +128,7 @@ class DocToolsServices
                         "description" => $action->intro,
                         "x-is-download" => $action->isDownload,
                         "x-response-json" => $action->resp,
+                        "x-response-intro-json" => $action->respIntro,
                         "requestBody" => count($action->params) == 0 ? null : [
                             "content" => [
                                 'application/x-www-form-urlencoded' => [

@@ -122,6 +122,7 @@ class RouterModelServices
             $action->action = "$method->class@$method->name";
             $action->isDownload = (($doc['return'] ?? false) && Str::contains($doc['return'], 'StreamedResponse')) || isset($doc['isDownload']);
             $action->resp = $doc['resp'] ?? null;
+            $action->respIntro = $doc['respIntro'] ?? null;
 
             // method
             if (isset($doc['method'])) {
@@ -179,6 +180,7 @@ class RouterModelServices
             if (Str::startsWith(trim($item), "//"))
                 continue;
             $param = new ParamModel();
+            $item = str_replace('//', '#', $item);
             $t1 = explode('\'', $item);
             if (count($t1) < 3) continue;
             $t2 = explode('|', $t1[3]);
