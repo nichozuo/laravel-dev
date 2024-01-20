@@ -47,6 +47,9 @@ class BuilderMacros
             if (!isset($params[$key]))
                 return $this;
 
+            if (count($params[$key]) == 0)
+                return $this;
+
             $range = $params[$key];
             if (count($range) != 2)
                 ee("{$key}参数必须是两个值");
