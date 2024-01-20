@@ -66,7 +66,13 @@ class BuilderMacros
                 return $this->whereBetween($field, [$start, $end]);
         };
 
-        $_ifHasWhereLike = fn(array $params, string $key, string $relation, ?string $field = null) => $this->when(array_key_exists($key, $params) && $params[$key] !== '', fn($q) => $q->whereHas($relation, fn($q1) => $q->where($field ?? $key, 'like', "%$params[$key]%")));
+        $_ifHasWhereLike = function (array $params, string $key, string $relation, ?string $field = null) {
+            return $this->when(array_key_exists($key, $params) && $params[$key] !== '', function (Builder|\Illuminate\Database\Eloquent\Builder $q) use ($params, $key, $relation, $field) {
+                return $q->whereHas($relation, function ($q1) use ($params, $key, $field) {
+                    return $q1->where($field ?? $key, 'like', "%$params[$key]%");
+                });
+            });
+        };
 
         $_order = function (?string $key = 'sorter', ?string $defaultField = 'id') {
             $params = request()->validate([$key => 'nullable|array']);
@@ -111,12 +117,12 @@ class BuilderMacros
         Builder::macro('ifWhereLikeKeyword', $_ifWhereLikeKeyword);
         Builder::macro('ifWhereNumberRange', $_ifWhereNumberRange);
         Builder::macro('ifWhereDateRange', $_ifWhereDateRange);
-        Builder::macro('ifHasWhereLike', $_ifHasWhereLike);
         Builder::macro('order', $_order);
         Builder::macro('unique', $_unique);
 
         \Illuminate\Database\Eloquent\Builder::macro('forSelect', $_forSelect);
         \Illuminate\Database\Eloquent\Builder::macro('page', $_page);
         \Illuminate\Database\Eloquent\Builder::macro('getById', $_getById);
+        \Illuminate\Database\Eloquent\Builder::macro('ifHasWhereLike', $_ifHasWhereLike);
     }
 }
